@@ -1,5 +1,6 @@
 packages:
   - examples/*
+  - packages/vue
   - packages/react
   - packages/react/refresh
   - packages/react/runtime
