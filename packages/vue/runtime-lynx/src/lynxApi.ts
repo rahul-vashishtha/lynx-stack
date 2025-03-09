@@ -33,15 +33,15 @@ export interface LynxAPI {
 }
 
 // Check if we're in a Lynx environment
-const isLynxEnvironment = typeof window !== 'undefined' && (window as any).__LYNX_ELEMENT_API__;
+const isLynxEnvironment = typeof globalThis !== 'undefined' && (globalThis as any).__LYNX_ELEMENT_API__;
 
 // Get the Lynx Element API
-const getLynxElementApi = () => {
+const getLynxElementApi = (): any | null => {
   if (!isLynxEnvironment) {
     return null;
   }
   
-  return (window as any).__LYNX_ELEMENT_API__;
+  return (globalThis as any).__LYNX_ELEMENT_API__;
 };
 
 // Create a real Lynx API implementation
@@ -81,7 +81,8 @@ const createMockLynxAPI = (): LynxAPI => {
   // Mock element counter for generating IDs
   let elementCounter = 0;
   
-  return {
+  // Create a self-contained API to avoid 'this' context issues
+  const mockApi: LynxAPI = {
     createElement: (type, props = {}) => {
       const element = {
         tagName: type,
@@ -94,10 +95,10 @@ const createMockLynxAPI = (): LynxAPI => {
         removeAttribute: (name) => {
           delete (element as any)[name];
         },
-        addEventListener: (event, handler) => {
+        addEventListener: (_event, _handler) => {
           // Mock implementation
         },
-        removeEventListener: (event, handler) => {
+        removeEventListener: (_event, _handler) => {
           // Mock implementation
         },
         textContent: '',
@@ -120,7 +121,7 @@ const createMockLynxAPI = (): LynxAPI => {
     removeElement: (element) => {
       const parent = element.parentElement;
       if (parent) {
-        this.removeChild(parent, element);
+        mockApi.removeChild(parent, element);
       }
     },
     appendChild: (parent, child) => {
@@ -133,7 +134,7 @@ const createMockLynxAPI = (): LynxAPI => {
         parent.children.splice(index, 0, child);
         child.parentElement = parent;
       } else {
-        this.appendChild(parent, child);
+        mockApi.appendChild(parent, child);
       }
     },
     removeChild: (parent, child) => {
@@ -144,6 +145,8 @@ const createMockLynxAPI = (): LynxAPI => {
       }
     },
   };
+  
+  return mockApi;
 };
 
 // Export the Lynx API

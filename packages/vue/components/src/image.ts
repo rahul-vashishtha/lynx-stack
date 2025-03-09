@@ -80,7 +80,7 @@ export const Image = defineComponent({
     onError: Function,
   },
   setup(props, { slots }) {
-    return () => h('image', props, slots.default?.());
+    return () => h('image', props, slots['default']?.());
   },
 });
 

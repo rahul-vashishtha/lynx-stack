@@ -23,7 +23,7 @@ function patchClass(el: LynxElement, value: string | null) {
 }
 
 // Patch a style
-function patchStyle(el: LynxElement, prev: any, next: any) {
+function patchStyle(el: LynxElement, _prev: any, next: any) {
   if (!next) {
     el.removeAttribute('style');
     return;
@@ -91,7 +91,7 @@ export function patchProp(
   key: string,
   prevValue: any,
   nextValue: any
-) {
+): void {
   // Handle special cases
   if (key === 'class') {
     patchClass(el, nextValue);

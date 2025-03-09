@@ -62,7 +62,7 @@ export const Button = defineComponent({
     onPressOut: Function,
   },
   setup(props, { slots }) {
-    return () => h('button', props, slots.default?.());
+    return () => h('button', props, slots['default']?.());
   },
 });
 

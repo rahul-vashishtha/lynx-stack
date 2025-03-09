@@ -40,7 +40,7 @@ export type LynxNode = LynxElement | LynxText | LynxComment;
 // Node operations for the Vue custom renderer
 export const nodeOps = {
   // Create element
-  createElement(tag: string, isSVG?: boolean, is?: string): LynxElement {
+  createElement(tag: string, _isSVG?: boolean, _is?: string): LynxElement {
     return lynxApi.createElement(tag) as LynxElement;
   },
 
@@ -65,35 +65,39 @@ export const nodeOps = {
   },
 
   // Set text content
-  setText(node: LynxText, text: string) {
+  setText(node: LynxText, text: string): void {
     node.textContent = text;
   },
 
   // Set comment content
-  setComment(node: LynxComment, text: string) {
+  setComment(node: LynxComment, text: string): void {
     node.textContent = text;
   },
 
+  // Set element text content
+  setElementText(el: LynxElement, text: string): void {
+    el.textContent = text;
+  },
+
   // Set static content
-  setStaticContent(container: LynxElement, content: string, anchor: LynxNode | null) {
+  setStaticContent(container: LynxElement, content: string, _anchor: LynxNode | null): LynxElement | null {
     // In Lynx, we can't directly set innerHTML, so we need to parse and create elements
     console.warn('setStaticContent is not fully supported in Lynx');
     container.textContent = content;
-    return container.children[0] || null;
+    return container.children[0] ?? null;
   },
 
   // Insert element before another element
-  insertBefore(parent: LynxElement, child: LynxNode, anchor: LynxNode | null) {
+  insertBefore(parent: LynxElement, child: LynxNode, anchor: LynxNode | null): void {
     if (anchor) {
       lynxApi.insertBefore(parent, child as LynxElement, anchor as LynxElement);
     } else {
       lynxApi.appendChild(parent, child as LynxElement);
     }
-    return child;
   },
 
   // Insert element into parent
-  insert(child: LynxNode, parent: LynxElement, anchor?: LynxNode | null) {
+  insert(child: LynxNode, parent: LynxElement, anchor?: LynxNode | null): void {
     if (anchor) {
       lynxApi.insertBefore(parent, child as LynxElement, anchor as LynxElement);
     } else {
@@ -102,7 +106,7 @@ export const nodeOps = {
   },
 
   // Remove element
-  remove(child: LynxNode) {
+  remove(child: LynxNode): void {
     const parent = child.parentElement;
     if (parent) {
       lynxApi.removeChild(parent, child as LynxElement);
@@ -110,7 +114,7 @@ export const nodeOps = {
   },
 
   // Append child
-  appendChild(parent: LynxElement, child: LynxNode) {
+  appendChild(parent: LynxElement, child: LynxNode): void {
     lynxApi.appendChild(parent, child as LynxElement);
   },
 
@@ -127,11 +131,11 @@ export const nodeOps = {
     const index = parent.children.indexOf(node as LynxElement);
     if (index === -1 || index === parent.children.length - 1) return null;
     
-    return parent.children[index + 1];
+    return parent.children[index + 1] || null;
   },
 
   // Set scope ID
-  setScopeId(el: LynxElement, id: string) {
+  setScopeId(el: LynxElement, id: string): void {
     el.setAttribute('data-scope-id', id);
   },
 

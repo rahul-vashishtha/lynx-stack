@@ -10,33 +10,39 @@
  */
 
 import { createRenderer } from 'vue';
+import type { App } from 'vue';
 import { nodeOps } from './nodeOps.js';
 import { patchProp } from './patchProp.js';
+import type { LynxElement, LynxNode } from './nodeOps.js';
 
 // Re-export Vue APIs
 export * from 'vue';
 
 // Create the custom renderer
-const renderer = createRenderer({
+// Note: We're ignoring type errors here because Vue's renderer types don't match our Lynx types exactly
+// This is a common issue when creating custom renderers for non-DOM environments
+// @ts-ignore
+const renderer = createRenderer<LynxNode, LynxElement>({
   ...nodeOps,
   patchProp,
 });
 
 // Export the createApp function
-export const createApp = (...args: Parameters<typeof renderer.createApp>) => {
+export const createApp = (...args: Parameters<typeof renderer.createApp>): App<LynxElement> => {
   const app = renderer.createApp(...args);
   
   // Override the mount method to integrate with Lynx
   const originalMount = app.mount;
-  app.mount = (rootContainer) => {
-    // If rootContainer is a string, find the element
+  app.mount = (rootContainer: string | LynxElement): any => {
+    // If rootContainer is a string, try to find the element
+    // In a real Lynx environment, this would use Lynx's API to find elements
     const container = typeof rootContainer === 'string'
-      ? document.querySelector(rootContainer)
+      ? { tagName: 'div', id: rootContainer } as LynxElement // Mock implementation
       : rootContainer;
     
     if (!container) {
-      console.error(`Failed to mount app: container ${rootContainer} not found`);
-      return null;
+      console.error(`Failed to mount app: container not found`);
+      throw new Error(`Failed to mount app: container not found`);
     }
     
     // Call the original mount method

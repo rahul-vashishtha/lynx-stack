@@ -17,8 +17,9 @@
     "lib"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsc --build",
+    "clean": "rm -rf lib && find src -name \"*.js\" -o -name \"*.js.map\" -o -name \"*.d.ts\" -o -name \"*.d.ts.map\" | xargs rm -f 2>/dev/null || true",
+    "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -29,13 +30,15 @@
     "vue": "^3.3.0"
   },
   "devDependencies": {
+    "@tsconfig/strictest": "^2.0.5",
     "@types/node": "^20.0.0",
-    "tsup": "^8.0.0",
+    "@vitest/coverage-v8": "^3.0.8",
+    "@vitest/ui": "^3.0.8",
     "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "vitest": "^3.0.8"
   },
   "publishConfig": {
     "access": "public"
   },
   "license": "Apache-2.0"
-} 
+}

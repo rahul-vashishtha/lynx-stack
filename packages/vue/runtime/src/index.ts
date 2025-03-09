@@ -8,6 +8,7 @@
 
 import * as Vue from 'vue';
 import { initLynxVue } from './lynx/index.js';
+import type { Component } from 'vue';
 
 // Re-export Vue APIs
 export * from 'vue';
@@ -16,18 +17,23 @@ export * from 'vue';
 const LynxVue = initLynxVue(Vue);
 
 // Register global Lynx Vue APIs
+declare global {
+  interface Window {
+    __LYNX_VUE__: any;
+  }
+}
+
 if (typeof window !== 'undefined') {
   window.__LYNX_VUE__ = LynxVue;
 }
 
 // Export Lynx-specific Vue APIs
-export const createApp = LynxVue.createApp;
-export const registerComponent = LynxVue.registerComponent;
-export const getComponent = LynxVue.getComponent;
+export const createApp: typeof LynxVue.createApp = LynxVue.createApp;
+export const registerComponent: typeof LynxVue.registerComponent = LynxVue.registerComponent;
+export const getComponent: typeof LynxVue.getComponent = LynxVue.getComponent;
 
 // Export the default Vue instance with Lynx extensions
 export default {
-  ...Vue,
   createApp,
   registerComponent,
   getComponent,

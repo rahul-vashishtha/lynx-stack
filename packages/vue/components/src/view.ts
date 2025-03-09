@@ -62,7 +62,7 @@ export const View = defineComponent({
     onTouchEnd: Function,
   },
   setup(props, { slots }) {
-    return () => h('view', props, slots.default?.());
+    return () => h('view', props, slots['default']?.());
   },
 });
 

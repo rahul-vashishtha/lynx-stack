@@ -57,7 +57,7 @@ export const Text = defineComponent({
     onClick: Function,
   },
   setup(props, { slots }) {
-    return () => h('text', props, slots.default?.());
+    return () => h('text', props, slots['default']?.());
   },
 });
 

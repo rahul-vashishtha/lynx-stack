@@ -43,7 +43,7 @@
   "devDependencies": {
     "@lynx-js/test-tools": "workspace:*",
     "@lynx-js/vitest-setup": "workspace:*",
-    "@microsoft/api-extractor": "catalog:",
+    "@microsoft/api-extractor": "^7.38.0",
     "webpack": "^5.98.0"
   },
   "peerDependencies": {

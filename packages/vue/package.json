@@ -1,6 +1,6 @@
 {
   "name": "@lynx-js/vue",
-  "version": "0.1.0",
+  "version": "0.0.1-alpha.0",
   "description": "VueLynx is a framework for developing Lynx applications with familiar Vue 3.",
   "repository": {
     "type": "git",
@@ -40,6 +40,10 @@
       "types": "./components/lib/index.d.ts",
       "default": "./components/lib/index.js"
     },
+    "./runtime-lynx": {
+      "types": "./runtime-lynx/lib/index.d.ts",
+      "default": "./runtime-lynx/lib/index.js"
+    },
     "./package.json": "./package.json"
   },
   "types": "./types/vue.d.ts",
@@ -62,12 +66,16 @@
       ],
       "runtime-components": [
         "./components/lib/index.d.ts"
+      ],
+      "runtime-lynx": [
+        "./runtime-lynx/lib/index.d.ts"
       ]
     }
   },
   "files": [
     "components",
     "runtime",
+    "runtime-lynx",
     "types",
     "docs",
     "CHANGELOG.md",
@@ -75,14 +83,16 @@
     "README.md"
   ],
   "scripts": {
-    "api-extractor": "api-extractor run --verbose"
+    "api-extractor": "api-extractor run --verbose",
+    "build": "tsc --build",
+    "build:clean": "rm -rf runtime/lib runtime-lynx/lib components/lib"
   },
   "dependencies": {
     "vue": "^3.3.0"
   },
   "devDependencies": {
     "@lynx-js/types": "^3.2.0",
-    "@microsoft/api-extractor": "catalog:"
+    "@microsoft/api-extractor": "^7.38.0"
   },
   "peerDependencies": {
     "@lynx-js/types": "*"

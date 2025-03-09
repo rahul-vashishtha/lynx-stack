@@ -6,11 +6,16 @@
     "declarationMap": true,
     "sourceMap": true,
     "rootDir": ".",
-    "outDir": "."
+    "outDir": ".",
+    "skipLibCheck": true,
+    "noEmit": true
   },
+  "references": [
+    { "path": "./runtime" },
+    { "path": "./runtime-lynx" },
+    { "path": "./components" }
+  ],
   "include": [
-    "runtime/src/**/*",
-    "components/src/**/*",
     "types/**/*"
   ],
   "exclude": [
