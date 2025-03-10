@@ -30,6 +30,10 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      cli@2.18.4:
+        specifier: link:napi-rs/cli@2.18.4
+        version: link:napi-rs/cli@2.18.4
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -323,6 +327,12 @@ importers:
       '@lynx-js/rspeedy':
         specifier: workspace:^
         version: link:../core
+      '@lynx-js/rspeedy-plugin-vue':
+        specifier: workspace:^
+        version: link:../plugin-vue
+      '@lynx-js/vue':
+        specifier: workspace:^
+        version: link:../../vue
 
   packages/rspeedy/plugin-qrcode:
     dependencies:

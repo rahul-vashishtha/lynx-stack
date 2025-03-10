@@ -1,4 +1,4 @@
-# @lynx-js/vue-rsbuild-plugin
+# @lynx-js/rspeedy-plugin-vue
 
 A rsbuild plugin for VueLynx that provides integration with the Lynx platform.
 
@@ -12,22 +12,22 @@ A rsbuild plugin for VueLynx that provides integration with the Lynx platform.
 ## Installation
 
 ```bash
-npm install @lynx-js/vue-rsbuild-plugin
+npm install @lynx-js/rspeedy-plugin-vue
 # or
-yarn add @lynx-js/vue-rsbuild-plugin
+yarn add @lynx-js/rspeedy-plugin-vue
 # or
-pnpm add @lynx-js/vue-rsbuild-plugin
+pnpm add @lynx-js/rspeedy-plugin-vue
 ```
 
 ## Usage
 
 ```js
-import { defineConfig } from "@lynx-js/rspeedy";
-import { pluginVueLynx } from "@lynx-js/vue-rsbuild-plugin";
+import { defineConfig } from '@lynx-js/rspeedy'
+import { pluginVueLynx } from '@lynx-js/rspeedy-plugin-vue'
 
 export default defineConfig({
   plugins: [pluginVueLynx()],
-});
+})
 ```
 
 ## Configuration
@@ -42,7 +42,7 @@ pluginVueLynx({
   },
   // CSS inheritance options
   enableCSSInheritance: false,
-  customCSSInheritanceList: ["direction", "color"],
+  customCSSInheritanceList: ['direction', 'color'],
   // Debug options
   debugInfoOutside: true,
   // Display options
@@ -60,14 +60,14 @@ pluginVueLynx({
   enableNewGesture: false,
   // Threading options
   enableParallelElement: true,
-  firstScreenSyncTiming: "immediately", // or 'jsReady'
+  firstScreenSyncTiming: 'immediately', // or 'jsReady'
   // Pipeline options
   pipelineSchedulerConfig: 0x00010000,
   // Version options
-  engineVersion: "1.0.0",
+  engineVersion: '1.0.0',
   // Experimental options
   experimental_isLazyBundle: false,
-});
+})
 ```
 
 ## License

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pluginVueLynx } from '@lynx-js/vue-rsbuild-plugin'
+import { pluginVueLynx } from '@lynx-js/rspeedy-plugin-vue'
 
 describe('pluginVueLynx', () => {
   it('should return a plugin with the correct name', () => {
@@ -20,4 +20,4 @@ describe('pluginVueLynx', () => {
     })
     expect(plugin).toBeDefined()
   })
-}) 
+})
