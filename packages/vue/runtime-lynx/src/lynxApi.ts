@@ -32,6 +32,19 @@ export interface LynxAPI {
   removeChild: (parent: LynxElement, child: LynxElement) => void;
 }
 
+// Store the current component ID for element creation context
+let currentComponentUniqueID = 0;
+
+// Set the current component ID
+export const setCurrentComponentUniqueID = (id: number): void => {
+  currentComponentUniqueID = id;
+};
+
+// Get the current component ID
+export const getCurrentComponentUniqueID = (): number => {
+  return currentComponentUniqueID;
+};
+
 // Check if we're in a Lynx environment
 const isLynxEnvironment = typeof globalThis !== 'undefined' && (globalThis as any).__LYNX_ELEMENT_API__;
 
@@ -54,22 +67,30 @@ const createRealLynxAPI = (): LynxAPI => {
   
   return {
     createElement: (type, props = {}) => {
-      return api.__createElement(type, props);
+      // Convert props to info object for __CreateElement
+      const info = { ...props };
+      
+      // Use the correct API name (__CreateElement) with proper parameters
+      return api.__CreateElement(type, getCurrentComponentUniqueID(), info);
     },
     updateElement: (element, props) => {
-      return api.__updateElement(element, props);
+      // Update element attributes
+      Object.entries(props).forEach(([key, value]) => {
+        api.__SetAttribute(element, key, value);
+      });
     },
     removeElement: (element) => {
-      return api.__removeElement(element);
+      return api.__RemoveElement(element);
     },
     appendChild: (parent, child) => {
-      return api.__appendChild(parent, child);
+      return api.__AppendElement(parent, child);
     },
     insertBefore: (parent, child, beforeChild) => {
-      return api.__insertBefore(parent, child, beforeChild);
+      return api.__InsertElementBefore(child, beforeChild);
     },
     removeChild: (parent, child) => {
-      return api.__removeChild(parent, child);
+      // In Lynx API, we don't need the parent to remove a child
+      return api.__RemoveElement(child);
     },
   };
 };

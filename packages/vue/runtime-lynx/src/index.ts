@@ -14,9 +14,21 @@ import type { App } from 'vue';
 import { nodeOps } from './nodeOps.js';
 import { patchProp } from './patchProp.js';
 import type { LynxElement, LynxNode } from './nodeOps.js';
+import { setCurrentComponentUniqueID } from './lynxApi.js';
 
 // Re-export Vue APIs
 export * from 'vue';
+
+// Get the Lynx Element API
+const getLynxElementApi = (): any | null => {
+  if (typeof globalThis === 'undefined' || !(globalThis as any).__LYNX_ELEMENT_API__) {
+    return null;
+  }
+  
+  return (globalThis as any).__LYNX_ELEMENT_API__;
+};
+
+const api = getLynxElementApi();
 
 // Create the custom renderer
 // Note: We're ignoring type errors here because Vue's renderer types don't match our Lynx types exactly
@@ -27,18 +39,46 @@ const renderer = createRenderer<LynxNode, LynxElement>({
   patchProp,
 });
 
+// Component counter for generating unique IDs
+let componentCounter = 0;
+
 // Export the createApp function
 export const createApp = (...args: Parameters<typeof renderer.createApp>): App<LynxElement> => {
   const app = renderer.createApp(...args);
+  
+  // Generate a unique component ID for this app
+  const componentId = ++componentCounter;
+  
+  // Set the current component ID for element creation
+  setCurrentComponentUniqueID(componentId);
   
   // Override the mount method to integrate with Lynx
   const originalMount = app.mount;
   app.mount = (rootContainer: string | LynxElement): any => {
     // If rootContainer is a string, try to find the element
-    // In a real Lynx environment, this would use Lynx's API to find elements
-    const container = typeof rootContainer === 'string'
-      ? { tagName: 'div', id: rootContainer } as LynxElement // Mock implementation
-      : rootContainer;
+    let container: LynxElement | null = null;
+    
+    if (typeof rootContainer === 'string') {
+      if (api) {
+        // Use Lynx's querySelector API if available
+        container = api.__querySelector(rootContainer);
+      } else {
+        // Mock implementation for development
+        container = { 
+          tagName: 'view', 
+          id: rootContainer,
+          children: [],
+          parentElement: null,
+          setAttribute: () => {},
+          removeAttribute: () => {},
+          addEventListener: () => {},
+          removeEventListener: () => {},
+          textContent: ''
+        } as LynxElement;
+      }
+    } else {
+      container = rootContainer;
+    }
     
     if (!container) {
       console.error(`Failed to mount app: container not found`);

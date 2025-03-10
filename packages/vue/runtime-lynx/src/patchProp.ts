@@ -9,6 +9,18 @@
  */
 
 import type { LynxElement } from './nodeOps.js';
+import { lynxApi } from './lynxApi.js';
+
+// Get the Lynx Element API
+const getLynxElementApi = (): any | null => {
+  if (typeof globalThis === 'undefined' || !(globalThis as any).__LYNX_ELEMENT_API__) {
+    return null;
+  }
+  
+  return (globalThis as any).__LYNX_ELEMENT_API__;
+};
+
+const api = getLynxElementApi();
 
 // Event handler cache to properly remove event listeners
 const eventHandlerCache = new WeakMap<LynxElement, Record<string, Function>>();
@@ -16,32 +28,57 @@ const eventHandlerCache = new WeakMap<LynxElement, Record<string, Function>>();
 // Patch a class
 function patchClass(el: LynxElement, value: string | null) {
   if (value == null) {
-    el.removeAttribute('class');
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetClasses(el, '');
+    } else {
+      el.removeAttribute('class');
+    }
   } else {
-    el.setAttribute('class', value);
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetClasses(el, value);
+    } else {
+      el.setAttribute('class', value);
+    }
   }
 }
 
 // Patch a style
 function patchStyle(el: LynxElement, _prev: any, next: any) {
   if (!next) {
-    el.removeAttribute('style');
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetInlineStyles(el, {});
+    } else {
+      el.removeAttribute('style');
+    }
     return;
   }
   
   if (typeof next === 'string') {
-    el.setAttribute('style', next);
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetInlineStyles(el, next);
+    } else {
+      el.setAttribute('style', next);
+    }
     return;
   }
   
   // Handle object style
-  const style: Record<string, string> = {};
-  
-  for (const key in next) {
-    style[key] = next[key];
+  if (api) {
+    // Use Lynx's Element API directly if available
+    api.__SetInlineStyles(el, next);
+  } else {
+    const style: Record<string, string> = {};
+    
+    for (const key in next) {
+      style[key] = next[key];
+    }
+    
+    el.setAttribute('style', style);
   }
-  
-  el.setAttribute('style', style);
 }
 
 // Patch an event listener
@@ -64,7 +101,12 @@ function patchEvent(
   // Remove the previous handler if it exists
   if (prevValue) {
     if (handlers[eventName]) {
-      el.removeEventListener(eventName, handlers[eventName] as any);
+      if (api) {
+        // Use Lynx's Element API directly if available
+        api.__SetEvents(el, [{ type: 'bindEvent', name: eventName, function: null }]);
+      } else {
+        el.removeEventListener(eventName, handlers[eventName] as any);
+      }
       delete handlers[eventName];
     }
   }
@@ -72,16 +114,37 @@ function patchEvent(
   // Add the new handler if it exists
   if (nextValue) {
     handlers[eventName] = nextValue;
-    el.addEventListener(eventName, nextValue as any);
+    if (api) {
+      // Use Lynx's Element API directly if available
+      // Convert the function to a string identifier that Lynx can use
+      const functionId = `vue_event_${eventName}_${Date.now()}`;
+      
+      // Register the function in the global scope for Lynx to call
+      (globalThis as any)[functionId] = nextValue;
+      
+      api.__SetEvents(el, [{ type: 'bindEvent', name: eventName, function: functionId }]);
+    } else {
+      el.addEventListener(eventName, nextValue as any);
+    }
   }
 }
 
 // Patch an attribute
 function patchAttr(el: LynxElement, key: string, value: any) {
   if (value == null) {
-    el.removeAttribute(key);
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetAttribute(el, key, null);
+    } else {
+      el.removeAttribute(key);
+    }
   } else {
-    el.setAttribute(key, value);
+    if (api) {
+      // Use Lynx's Element API directly if available
+      api.__SetAttribute(el, key, value);
+    } else {
+      el.setAttribute(key, value);
+    }
   }
 }
 

@@ -37,29 +37,44 @@ export interface LynxComment {
 
 export type LynxNode = LynxElement | LynxText | LynxComment;
 
+// Create a text container element for text nodes
+const createTextContainer = (text: string): LynxElement => {
+  const container = lynxApi.createElement('text');
+  container.textContent = text;
+  return container;
+};
+
 // Node operations for the Vue custom renderer
 export const nodeOps = {
   // Create element
   createElement(tag: string, _isSVG?: boolean, _is?: string): LynxElement {
-    return lynxApi.createElement(tag) as LynxElement;
+    // Map Vue element types to Lynx element types if needed
+    const lynxTag = mapVueTagToLynx(tag);
+    return lynxApi.createElement(lynxTag);
   },
 
   // Create text node
   createText(text: string): LynxText {
+    // In Lynx, we need to create a text element to hold text content
+    // We'll use a special wrapper to maintain compatibility with Vue's expectations
     const textNode = {
       nodeType: 3,
       textContent: text,
       parentElement: null,
-    } as LynxText;
+      // Store the actual Lynx element for when this text node is inserted
+      _lynxElement: createTextContainer(text),
+    } as LynxText & { _lynxElement: LynxElement };
     return textNode;
   },
 
   // Create comment
   createComment(text: string): LynxComment {
+    // Lynx doesn't have native comment support, so we'll use a hidden element
     const commentNode = {
       nodeType: 8,
       textContent: text,
       parentElement: null,
+      // Comments aren't rendered in Lynx
     } as LynxComment;
     return commentNode;
   },
@@ -67,68 +82,112 @@ export const nodeOps = {
   // Set text content
   setText(node: LynxText, text: string): void {
     node.textContent = text;
+    // Update the actual Lynx element if it exists
+    if ((node as any)._lynxElement) {
+      (node as any)._lynxElement.textContent = text;
+    }
   },
 
   // Set comment content
   setComment(node: LynxComment, text: string): void {
     node.textContent = text;
+    // Comments aren't rendered in Lynx
   },
 
   // Set element text content
   setElementText(el: LynxElement, text: string): void {
-    el.textContent = text;
+    // Clear existing children
+    while (el.children.length) {
+      lynxApi.removeChild(el, el.children[0]);
+    }
+    
+    // If text is not empty, create a text element and append it
+    if (text) {
+      const textEl = createTextContainer(text);
+      lynxApi.appendChild(el, textEl);
+    }
   },
 
   // Set static content
   setStaticContent(container: LynxElement, content: string, _anchor: LynxNode | null): LynxElement | null {
     // In Lynx, we can't directly set innerHTML, so we need to parse and create elements
     console.warn('setStaticContent is not fully supported in Lynx');
-    container.textContent = content;
+    this.setElementText(container, content);
     return container.children[0] ?? null;
   },
 
   // Insert element before another element
   insertBefore(parent: LynxElement, child: LynxNode, anchor: LynxNode | null): void {
-    if (anchor) {
-      lynxApi.insertBefore(parent, child as LynxElement, anchor as LynxElement);
-    } else {
-      lynxApi.appendChild(parent, child as LynxElement);
+    // Handle text and comment nodes
+    const childElement = isTextOrComment(child) 
+      ? (child as any)._lynxElement || createTextContainer((child as any).textContent)
+      : child as LynxElement;
+    
+    // If it's a text node, store the Lynx element
+    if (isTextNode(child) && !(child as any)._lynxElement) {
+      (child as any)._lynxElement = childElement;
     }
+    
+    if (anchor) {
+      const anchorElement = isTextOrComment(anchor)
+        ? (anchor as any)._lynxElement
+        : anchor as LynxElement;
+        
+      if (anchorElement) {
+        lynxApi.insertBefore(parent, childElement, anchorElement);
+      } else {
+        lynxApi.appendChild(parent, childElement);
+      }
+    } else {
+      lynxApi.appendChild(parent, childElement);
+    }
+    
+    // Update parent reference
+    childElement.parentElement = parent;
   },
 
-  // Insert element into parent
+  // Insert element into parent (alias for insertBefore)
   insert(child: LynxNode, parent: LynxElement, anchor?: LynxNode | null): void {
-    if (anchor) {
-      lynxApi.insertBefore(parent, child as LynxElement, anchor as LynxElement);
-    } else {
-      lynxApi.appendChild(parent, child as LynxElement);
-    }
+    this.insertBefore(parent, child, anchor || null);
   },
 
   // Remove element
   remove(child: LynxNode): void {
-    const parent = child.parentElement;
-    if (parent) {
-      lynxApi.removeChild(parent, child as LynxElement);
+    const childElement = isTextOrComment(child)
+      ? (child as any)._lynxElement
+      : child as LynxElement;
+      
+    if (childElement && childElement.parentElement) {
+      lynxApi.removeChild(childElement.parentElement, childElement);
+      childElement.parentElement = null;
     }
   },
 
   // Append child
   appendChild(parent: LynxElement, child: LynxNode): void {
-    lynxApi.appendChild(parent, child as LynxElement);
+    this.insertBefore(parent, child, null);
   },
 
   // Get parent node
   parentNode(node: LynxNode): LynxElement | null {
-    return node.parentElement;
+    if (isTextOrComment(node)) {
+      return (node as any)._lynxElement?.parentElement || null;
+    }
+    return (node as LynxElement).parentElement;
   },
 
   // Get next sibling
   nextSibling(node: LynxNode): LynxNode | null {
-    const parent = node.parentElement;
+    const parent = this.parentNode(node);
     if (!parent) return null;
     
-    const index = parent.children.indexOf(node as LynxElement);
+    const childElement = isTextOrComment(node)
+      ? (node as any)._lynxElement
+      : node as LynxElement;
+      
+    if (!childElement) return null;
+    
+    const index = parent.children.indexOf(childElement);
     if (index === -1 || index === parent.children.length - 1) return null;
     
     return parent.children[index + 1] || null;
@@ -144,4 +203,33 @@ export const nodeOps = {
     console.warn('cloneNode is not fully supported in Lynx');
     return node;
   },
-}; 
+};
+
+// Helper functions
+function isTextNode(node: LynxNode): boolean {
+  return (node as any).nodeType === 3;
+}
+
+function isCommentNode(node: LynxNode): boolean {
+  return (node as any).nodeType === 8;
+}
+
+function isTextOrComment(node: LynxNode): boolean {
+  return isTextNode(node) || isCommentNode(node);
+}
+
+// Map Vue element types to Lynx element types
+function mapVueTagToLynx(tag: string): string {
+  // Map common Vue/HTML elements to Lynx elements
+  const tagMap: Record<string, string> = {
+    'div': 'view',
+    'span': 'text',
+    'img': 'image',
+    'ul': 'list',
+    'li': 'list-item',
+    'input': 'input',
+    // Add more mappings as needed
+  };
+  
+  return tagMap[tag.toLowerCase()] || tag;
+} 
