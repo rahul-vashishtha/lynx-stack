@@ -1,7 +1,6 @@
 {
-  "name": "vue-lynx-basic-example",
-  "version": "0.1.0",
-  "private": true,
+  "name": "rspeedy-vue-js",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "build": "rspeedy build",
@@ -9,10 +8,14 @@
     "preview": "rspeedy preview"
   },
   "dependencies": {
-    "vue": "^3.3.0"
+    "@lynx-js/vue": "workspace:*"
   },
   "devDependencies": {
+    "@lynx-js/qrcode-rsbuild-plugin": "workspace:*",
     "@lynx-js/rspeedy": "workspace:*",
     "@lynx-js/rspeedy-plugin-vue": "workspace:*"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

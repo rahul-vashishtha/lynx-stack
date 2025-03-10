@@ -18,7 +18,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@lynx-js/vue-rsbuild-plugin': resolve(__dirname, 'src/index.ts'),
+      '@lynx-js/rspeedy-plugin-vue': resolve(__dirname, 'src/index.ts'),
     },
   },
-}) 
+})

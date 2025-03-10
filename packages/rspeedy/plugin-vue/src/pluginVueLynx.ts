@@ -1,19 +1,4 @@
-// Copyright 2024 The Lynx Authors. All rights reserved.
-// Licensed under the Apache License Version 2.0 that can be found in the
-// LICENSE file in the root directory of this source tree.
-
-/**
- * @packageDocumentation
- *
- * A rsbuild plugin that integrates with VueLynx.
- */
-
-import { createRequire } from 'node:module'
-import path from 'node:path'
-
 import type { RsbuildPlugin } from '@rsbuild/core'
-
-import type { ExposedAPI } from '@lynx-js/rspeedy'
 
 import { applyAlias } from './alias.js'
 import { applyBackgroundOnly } from './backgroundOnly.js'
@@ -277,7 +262,7 @@ export interface PluginVueLynxOptions {
  *
  * ```js
  * import { defineConfig } from '@lynx-js/rspeedy'
- * import { pluginVueLynx } from '@lynx-js/vue-rsbuild-plugin'
+ * import { pluginVueLynx } from '@lynx-js/rspeedy-plugin-vue'
  *
  * export default defineConfig({
  *   plugins: [
@@ -293,10 +278,12 @@ export function pluginVueLynx(
 ): RsbuildPlugin {
   const options: Required<PluginVueLynxOptions> = {
     compat: userOptions?.compat ?? {},
-    customCSSInheritanceList: userOptions?.customCSSInheritanceList ?? undefined,
+    customCSSInheritanceList: userOptions?.customCSSInheritanceList
+      ?? undefined,
     debugInfoOutside: userOptions?.debugInfoOutside ?? true,
     defaultDisplayLinear: userOptions?.defaultDisplayLinear ?? true,
-    enableAccessibilityElement: userOptions?.enableAccessibilityElement ?? false,
+    enableAccessibilityElement: userOptions?.enableAccessibilityElement
+      ?? false,
     enableICU: userOptions?.enableICU ?? false,
     enableCSSInheritance: userOptions?.enableCSSInheritance ?? false,
     enableCSSInvalidation: userOptions?.enableCSSInvalidation ?? true,
@@ -306,8 +293,10 @@ export function pluginVueLynx(
     enableRemoveCSSScope: userOptions?.enableRemoveCSSScope ?? true,
     firstScreenSyncTiming: userOptions?.firstScreenSyncTiming ?? 'immediately',
     pipelineSchedulerConfig: userOptions?.pipelineSchedulerConfig ?? 0x00010000,
-    removeDescendantSelectorScope: userOptions?.removeDescendantSelectorScope ?? false,
-    targetSdkVersion: userOptions?.targetSdkVersion ?? userOptions?.engineVersion ?? '',
+    removeDescendantSelectorScope: userOptions?.removeDescendantSelectorScope
+      ?? false,
+    targetSdkVersion: userOptions?.targetSdkVersion
+      ?? userOptions?.engineVersion ?? '',
     experimental_isLazyBundle: userOptions?.experimental_isLazyBundle ?? false,
   }
 
@@ -346,4 +335,4 @@ export function pluginVueLynx(
       applyLazy(api, options)
     },
   }
-} 
+}

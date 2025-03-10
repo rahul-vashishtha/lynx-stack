@@ -1,5 +1,5 @@
 import { defineConfig } from '@lynx-js/rspeedy'
-import { pluginVueLynx } from '@lynx-js/vue-rsbuild-plugin'
+import { pluginVueLynx } from '@lynx-js/rspeedy-plugin-vue'
 
 export default defineConfig({
   plugins: [
@@ -22,4 +22,4 @@ export default defineConfig({
       root: './dist',
     },
   },
-}) 
+})
