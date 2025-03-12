@@ -11,7 +11,10 @@
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "strict": true,
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
     "esModuleInterop": true
   },

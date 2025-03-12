@@ -38,10 +38,13 @@ export interface LynxComment {
 export type LynxNode = LynxElement | LynxText | LynxComment;
 
 // Create a text container element for text nodes
-const createTextContainer = (text: string): LynxElement => {
+const createTextContainer = (text: string): LynxElement | undefined => {
   const container = lynxApi.createElement('text');
-  container.textContent = text;
-  return container;
+  if (container) {
+    container.textContent = text;
+    return container;
+  }
+  return undefined;
 };
 
 // Node operations for the Vue custom renderer
@@ -97,14 +100,17 @@ export const nodeOps = {
   // Set element text content
   setElementText(el: LynxElement, text: string): void {
     // Clear existing children
-    while (el.children.length) {
+    while (el.children && el.children.length) {
       lynxApi.removeChild(el, el.children[0]);
     }
     
     // If text is not empty, create a text element and append it
     if (text) {
       const textEl = createTextContainer(text);
-      lynxApi.appendChild(el, textEl);
+      if (textEl) { // Add null check to fix TypeScript error
+        // Use type assertion to satisfy TypeScript
+        lynxApi.appendChild(el, textEl as LynxElement);
+      }
     }
   },
 
@@ -141,9 +147,6 @@ export const nodeOps = {
     } else {
       lynxApi.appendChild(parent, childElement);
     }
-    
-    // Update parent reference
-    childElement.parentElement = parent;
   },
 
   // Insert element into parent (alias for insertBefore)
@@ -159,7 +162,6 @@ export const nodeOps = {
       
     if (childElement && childElement.parentElement) {
       lynxApi.removeChild(childElement.parentElement, childElement);
-      childElement.parentElement = null;
     }
   },
 
@@ -201,8 +203,22 @@ export const nodeOps = {
   // Clone node (not fully supported in Lynx)
   cloneNode(node: LynxNode): LynxNode {
     console.warn('cloneNode is not fully supported in Lynx');
-    return node;
-  },
+    
+    if (isTextNode(node)) {
+      return this.createText((node as LynxText).textContent);
+    } else if (isCommentNode(node)) {
+      return this.createComment((node as LynxComment).textContent);
+    } else {
+      // For elements, create a new element with the same tag
+      const el = node as LynxElement;
+      const clone = this.createElement(el.tagName);
+      
+      // Copy attributes (not fully implemented)
+      // In a real implementation, we would need to copy all attributes
+      
+      return clone;
+    }
+  }
 };
 
 // Helper functions
@@ -220,16 +236,23 @@ function isTextOrComment(node: LynxNode): boolean {
 
 // Map Vue element types to Lynx element types
 function mapVueTagToLynx(tag: string): string {
-  // Map common Vue/HTML elements to Lynx elements
+  // Map common HTML elements to Lynx elements
   const tagMap: Record<string, string> = {
     'div': 'view',
     'span': 'text',
+    'p': 'text',
+    'h1': 'text',
+    'h2': 'text',
+    'h3': 'text',
+    'h4': 'text',
+    'h5': 'text',
+    'h6': 'text',
     'img': 'image',
-    'ul': 'list',
-    'li': 'list-item',
     'input': 'input',
+    'button': 'button',
+    'a': 'link',
     // Add more mappings as needed
   };
   
   return tagMap[tag.toLowerCase()] || tag;
-} 
+}

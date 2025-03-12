@@ -22,10 +22,17 @@ export function applySWC(api: RsbuildPluginAPI): void {
     // Configure SWC for Vue
     config.tools.swc = {
       ...config.tools.swc,
-      // Configure JSX transformation
-      jsxTransform: 'automatic',
-      // Configure Vue-specific options
-      jsxImportSource: '@lynx-js/vue',
+      // Configure JSX transformation using the jsc property
+      jsc: {
+        ...(config.tools.swc.jsc || {}),
+        transform: {
+          ...((config.tools.swc.jsc as any)?.transform || {}),
+          react: {
+            runtime: 'automatic',
+            importSource: '@lynx-js/vue',
+          }
+        }
+      }
     }
 
     return config

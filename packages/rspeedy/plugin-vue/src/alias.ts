@@ -9,9 +9,11 @@ import type { RsbuildPluginAPI } from '@rsbuild/core'
  */
 export function applyAlias(api: RsbuildPluginAPI): void {
   api.modifyBundlerChain((chain) => {
+    // Configure the chain
     // Add Vue-specific aliases
     chain.resolve.alias.set('vue', '@lynx-js/vue')
 
-    return chain
+    // Return void instead of the chain to match the expected type
+    return
   })
 } 

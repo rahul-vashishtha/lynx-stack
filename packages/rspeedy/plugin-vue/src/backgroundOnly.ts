@@ -10,6 +10,7 @@ import type { RsbuildPluginAPI } from '@rsbuild/core'
 export function applyBackgroundOnly(api: RsbuildPluginAPI): void {
   // Configure background-only mode
   api.modifyBundlerChain((chain) => {
+    // Configure the chain
     // Add background-only loader for .vue files with ?background query
     chain.module
       .rule('vue-background')
@@ -21,6 +22,7 @@ export function applyBackgroundOnly(api: RsbuildPluginAPI): void {
         scriptOnly: true,
       })
 
-    return chain
+    // Return void instead of the chain to match the expected type
+    return
   })
 } 

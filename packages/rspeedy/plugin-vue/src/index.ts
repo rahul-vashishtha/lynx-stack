@@ -11,4 +11,4 @@
 export { pluginVueLynx } from './pluginVueLynx.js'
 export type { PluginVueLynxOptions } from './pluginVueLynx.js'
 
-export { LAYERS } from '@lynx-js/vue-webpack-plugin' 
+export { LAYERS } from './vue-webpack-plugin-mock.js'

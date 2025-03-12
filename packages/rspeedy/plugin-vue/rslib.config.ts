@@ -1,17 +1,8 @@
-import { defineConfig } from '@rsbuild/core'
-import { pluginTypescript } from '@rsbuild/plugin-typescript'
-import { pluginNode } from '@rsbuild/plugin-node'
+import { defineConfig } from '@rslib/core'
 
 export default defineConfig({
-  plugins: [
-    pluginTypescript({
-      tsconfig: './tsconfig.build.json',
-    }),
-    pluginNode({
-      format: 'esm',
-      target: 'node18',
-      externalAllNodeModules: true,
-    }),
+  lib: [
+    { format: 'esm', syntax: 'es2022', dts: false },
   ],
   source: {
     entry: {
@@ -20,6 +11,7 @@ export default defineConfig({
     alias: {
       '@': './src',
     },
+    tsconfigPath: './tsconfig.build.json',
   },
   output: {
     distPath: {
@@ -30,4 +22,4 @@ export default defineConfig({
     },
     cleanDistPath: true,
   },
-}) 
+})

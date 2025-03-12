@@ -30,6 +30,9 @@ export interface LynxAPI {
   
   // Remove a child from a Lynx element
   removeChild: (parent: LynxElement, child: LynxElement) => void;
+  
+  // Query selector to find elements
+  querySelector: (selector: string) => LynxElement | null;
 }
 
 // Store the current component ID for element creation context
@@ -71,27 +74,79 @@ const createRealLynxAPI = (): LynxAPI => {
       const info = { ...props };
       
       // Use the correct API name (__CreateElement) with proper parameters
-      return api.__CreateElement(type, getCurrentComponentUniqueID(), info);
+      const element = api.__CreateElement(type, getCurrentComponentUniqueID(), info);
+      
+      // Initialize the children array since Lynx doesn't provide it natively
+      element.children = element.children || [];
+      
+      return element;
     },
     updateElement: (element, props) => {
-      // Update element attributes
+      // Update element attributes using __SetAttribute
       Object.entries(props).forEach(([key, value]) => {
-        api.__SetAttribute(element, key, value);
+        if (key === 'style') {
+          // Handle style objects specially
+          api.__SetInlineStyles(element, value);
+        } else if (key === 'class' || key === 'className') {
+          // Handle class specially
+          api.__SetClasses(element, value);
+        } else if (key.startsWith('on') && typeof value === 'function') {
+          // Handle event handlers
+          const eventName = key.slice(2).toLowerCase();
+          api.__SetEvents(element, [{ type: 'bindEvent', name: eventName, function: value }]);
+        } else {
+          // Handle regular attributes
+          api.__SetAttribute(element, key, value);
+        }
       });
     },
     removeElement: (element) => {
       return api.__RemoveElement(element);
     },
     appendChild: (parent, child) => {
-      return api.__AppendElement(parent, child);
+      // Use the correct API name (__AppendElement)
+      api.__AppendElement(parent, child);
+      
+      // Update the parent reference and children array
+      child.parentElement = parent;
+      if (!parent.children) {
+        parent.children = [];
+      }
+      parent.children.push(child);
     },
     insertBefore: (parent, child, beforeChild) => {
-      return api.__InsertElementBefore(child, beforeChild);
+      // Use the correct API name (__InsertElementBefore)
+      api.__InsertElementBefore(child, beforeChild);
+      
+      // Update the parent reference and children array
+      child.parentElement = parent;
+      if (!parent.children) {
+        parent.children = [];
+      }
+      const index = parent.children.indexOf(beforeChild);
+      if (index !== -1) {
+        parent.children.splice(index, 0, child);
+      } else {
+        parent.children.push(child);
+      }
     },
     removeChild: (parent, child) => {
-      // In Lynx API, we don't need the parent to remove a child
-      return api.__RemoveElement(child);
+      // Use the correct API name (__RemoveElement)
+      api.__RemoveElement(child);
+      
+      // Update the parent reference and children array
+      child.parentElement = null;
+      if (parent.children) {
+        const index = parent.children.indexOf(child);
+        if (index !== -1) {
+          parent.children.splice(index, 1);
+        }
+      }
     },
+    querySelector: (selector) => {
+      // Use the correct API name (__querySelector)
+      return api.__querySelector(selector);
+    }
   };
 };
 
@@ -165,6 +220,11 @@ const createMockLynxAPI = (): LynxAPI => {
         child.parentElement = null;
       }
     },
+    querySelector: (selector) => {
+      // Mock implementation for querySelector
+      console.warn(`Mock querySelector called with: ${selector}`);
+      return null;
+    }
   };
   
   return mockApi;
@@ -173,4 +233,4 @@ const createMockLynxAPI = (): LynxAPI => {
 // Export the Lynx API
 export const lynxApi: LynxAPI = isLynxEnvironment
   ? createRealLynxAPI()
-  : createMockLynxAPI(); 
+  : createMockLynxAPI();

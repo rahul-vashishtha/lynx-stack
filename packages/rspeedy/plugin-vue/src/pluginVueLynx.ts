@@ -295,6 +295,7 @@ export function pluginVueLynx(
     pipelineSchedulerConfig: userOptions?.pipelineSchedulerConfig ?? 0x00010000,
     removeDescendantSelectorScope: userOptions?.removeDescendantSelectorScope
       ?? false,
+    engineVersion: userOptions?.engineVersion ?? '',
     targetSdkVersion: userOptions?.targetSdkVersion
       ?? userOptions?.engineVersion ?? '',
     experimental_isLazyBundle: userOptions?.experimental_isLazyBundle ?? false,

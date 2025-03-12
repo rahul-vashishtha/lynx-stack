@@ -35,6 +35,7 @@
   ],
   "scripts": {
     "api-extractor": "api-extractor run --verbose",
+    "build": "tsc --build",
     "test": "pnpm -w run test --project webpack/vue-refresh"
   },
   "dependencies": {

@@ -34,7 +34,8 @@
   ],
   "scripts": {
     "api-extractor": "api-extractor run --verbose",
-    "test": "pnpm -w run test --project webpack/vue"
+    "test": "pnpm -w run test --project webpack/vue",
+    "build": "tsc --build"
   },
   "dependencies": {
     "@lynx-js/webpack-runtime-globals": "workspace:*",

@@ -16,6 +16,7 @@ export function applyCSS(
 
   // Configure CSS modules
   api.modifyBundlerChain((chain) => {
+    // Configure the chain
     // Get all CSS rules
     const cssRules = [
       chain.module.rules.get('css'),
@@ -61,6 +62,7 @@ export function applyCSS(
       })
     }
 
-    return chain
+    // Return void instead of the chain to match the expected type
+    return
   })
 } 

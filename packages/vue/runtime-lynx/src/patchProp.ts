@@ -9,7 +9,6 @@
  */
 
 import type { LynxElement } from './nodeOps.js';
-import { lynxApi } from './lynxApi.js';
 
 // Get the Lynx Element API
 const getLynxElementApi = (): any | null => {
