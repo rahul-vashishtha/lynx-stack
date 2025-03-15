@@ -4,4 +4,4 @@
 export const LAYERS = {
   BACKGROUND: 'vue:background',
   MAIN_THREAD: 'vue:main-thread',
-} as const; 
+} as const;

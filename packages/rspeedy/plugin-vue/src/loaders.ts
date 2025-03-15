@@ -20,7 +20,7 @@ export function applyLoaders(
       .rule('vue')
       .test(/\.vue$/)
       .use('vue-loader')
-      .loader('@lynx-js/vue-loader')
+      .loader('@lynx-js/vue-webpack-loader')
       .options({
         // Configure which parts go to which threads
         splitTemplate: true,

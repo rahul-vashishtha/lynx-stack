@@ -101,7 +101,7 @@ export const nodeOps = {
   setElementText(el: LynxElement, text: string): void {
     // Clear existing children
     while (el.children && el.children.length) {
-      lynxApi.removeChild(el, el.children[0]);
+      lynxApi.removeChild(el, el.children[0]!);
     }
     
     // If text is not empty, create a text element and append it
@@ -109,7 +109,7 @@ export const nodeOps = {
       const textEl = createTextContainer(text);
       if (textEl) { // Add null check to fix TypeScript error
         // Use type assertion to satisfy TypeScript
-        lynxApi.appendChild(el, textEl as LynxElement);
+        lynxApi.appendChild(el, textEl);
       }
     }
   },

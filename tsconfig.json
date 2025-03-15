@@ -123,7 +123,7 @@
       "path": "./packages/react"
     },
     {
-      "path": "./packages/react"
+      "path": "./packages/vue"
     },
     {
       "path": "./packages/third-party"

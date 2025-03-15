@@ -1,73 +1,47 @@
+// options.ts
 // Copyright 2024 The Lynx Authors. All rights reserved.
-// Licensed under the Apache License Version 2.0 that can be found in the
-// LICENSE file in the root directory of this source tree.
+// Licensed under the Apache License Version 2.0
 
-/**
- * Options for the Vue loader
- *
- * @public
- */
+import type { LoaderContext } from '@rspack/core';
+
 export interface VueLoaderOptions {
-  /**
-   * Whether to split the template and script into separate files
-   *
-   * @defaultValue `false`
-   */
-  splitTemplate?: boolean;
+  isProduction?: boolean;
+  enableCssModules?: boolean;
+  enableSourceMap?: boolean;
+  exposeFilename?: boolean;
+  customBlocks?: string[];
+}
 
-  /**
-   * Whether to put the template in the main thread
-   *
-   * @defaultValue `false`
-   */
-  templateInMainThread?: boolean;
+export function getMainThreadTransformOptions(this: LoaderContext<VueLoaderOptions>) {
+  const options = this.getOptions();
+  return {
+    isProduction: options.isProduction ?? this.mode === 'production',
+    enableSourceMap: options.enableSourceMap ?? this.sourceMap,
+    exposeFilename: options.exposeFilename ?? false,
+    compileTemplate: true,
+    targetLayer: 'main',
+    customBlocks: options.customBlocks ?? [],
+  };
+}
 
-  /**
-   * Whether to put the script in the background thread
-   *
-   * @defaultValue `false`
-   */
-  scriptInBackground?: boolean;
+export function getBackgroundTransformOptions(this: LoaderContext<VueLoaderOptions>) {
+  const options = this.getOptions();
+  return {
+    isProduction: options.isProduction ?? this.mode === 'production',
+    enableSourceMap: options.enableSourceMap ?? this.sourceMap,
+    exposeFilename: options.exposeFilename ?? false,
+    compileTemplate: false,
+    targetLayer: 'background',
+    customBlocks: options.customBlocks ?? [],
+  };
+}
 
-  /**
-   * Whether to put the style in the main thread
-   *
-   * @defaultValue `false`
-   */
-  styleToLayer?: string;
-
-  /**
-   * Whether to put the template in the main thread
-   *
-   * @defaultValue `false`
-   */
-  templateToLayer?: string;
-
-  /**
-   * Whether to put the script in the background thread
-   *
-   * @defaultValue `false`
-   */
-  scriptToLayer?: string;
-
-  /**
-   * Whether to enable hot reload
-   *
-   * @defaultValue `false`
-   */
-  hotReload?: boolean;
-
-  /**
-   * Whether to optimize for SSR
-   *
-   * @defaultValue `false`
-   */
-  optimizeSSR?: boolean;
-
-  /**
-   * Whether to disable compatibility warnings
-   *
-   * @defaultValue `false`
-   */
-  disableCompatibilityWarnings?: boolean;
-} 
+export function getCssModuleConfig(enableCssModules: boolean) {
+  return {
+    modules: {
+      localIdentName: enableCssModules 
+        ? '[local]_[hash:base64:5]' 
+        : '[local]',
+    },
+  };
+}

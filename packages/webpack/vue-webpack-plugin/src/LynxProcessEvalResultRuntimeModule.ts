@@ -1,43 +1,44 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+import type { RuntimeModule } from '@rspack/core';
 
-import type { Compilation } from '@rspack/core';
-import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
+import { RuntimeGlobals as LynxRuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
-/**
- * A runtime module that processes eval results for Vue components
- */
+type LynxProcessEvalResultRuntimeModule = new() => RuntimeModule;
+
 export function createLynxProcessEvalResultRuntimeModule(
-  compilation: Compilation,
-): any {
-  const { RuntimeModule } = compilation.compiler.webpack;
-
-  return class LynxProcessEvalResultRuntimeModule extends RuntimeModule {
+  webpack: typeof import('@rspack/core').rspack,
+): LynxProcessEvalResultRuntimeModule {
+  return class LynxProcessEvalResultRuntimeModule
+    extends webpack.RuntimeModule
+  {
     constructor() {
-      super('lynx process eval result', 10);
+      super('Lynx process eval result', webpack.RuntimeModule.STAGE_ATTACH);
     }
 
-    generate(): string {
-      const { runtimeTemplate } = compilation;
-      const content = `
-// This module is used to process eval results for Vue components
-${RuntimeGlobals.lynxProcessEvalResult} = function(moduleId, result) {
-  // If the result is a Vue component, register it
-  if (result && typeof result === 'object' && result.__file) {
-    // Get the component name
-    var name = result.name || result.__file.split('/').pop().split('.')[0];
-    
-    // Register the component
-    if (${RuntimeGlobals.lynxRegisterComponent}) {
-      ${RuntimeGlobals.lynxRegisterComponent}(name, result);
+    override generate(): string {
+      const chunk = this.chunk;
+      const compilation = this.compilation!;
+
+      if (!chunk || !compilation) {
+        return '';
+      }
+
+      return `
+${LynxRuntimeGlobals.lynxProcessEvalResult} = function (result, schema) {
+  var chunk = result(schema);
+  if (chunk.ids && chunk.modules) {
+    // We only deal with webpack chunk
+    ${webpack.RuntimeGlobals.externalInstallChunk}(chunk);
+    // TODO: sort with preOrderIndex. See: https://github.com/web-infra-dev/rspack/pull/8588
+    for (var moduleId in chunk.modules) {
+      ${webpack.RuntimeGlobals.require}(moduleId);
     }
+    return chunk;
   }
-  
-  return result;
-};`;
-
-      return content;
+}
+`;
     }
   };
-} 
+}

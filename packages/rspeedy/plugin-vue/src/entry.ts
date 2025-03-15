@@ -12,7 +12,7 @@ import type {
 import type { UndefinedOnPartialDeep } from 'type-fest'
 
 // Import the mock Vue webpack plugin instead of the actual one
-import { LAYERS, VueWebpackPlugin } from './vue-webpack-plugin-mock.js'
+import { LAYERS, VueWebpackPlugin } from '@lynx-js/vue-webpack-plugin'
 import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {

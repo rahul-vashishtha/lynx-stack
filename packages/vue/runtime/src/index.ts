@@ -8,7 +8,6 @@
 
 import * as Vue from 'vue';
 import { initLynxVue } from './lynx/index.js';
-import type { Component } from 'vue';
 
 // Re-export Vue APIs
 export * from 'vue';

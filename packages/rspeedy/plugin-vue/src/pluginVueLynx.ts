@@ -303,6 +303,7 @@ export function pluginVueLynx(
 
   return {
     name: 'rspeedy:plugin-vue',
+    pre: ['lynx:rsbuild:plugin-api'],
 
     setup(api) {
       // Validate the configuration

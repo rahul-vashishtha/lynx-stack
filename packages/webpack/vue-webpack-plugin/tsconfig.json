@@ -1,8 +1,12 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": ["./tsconfig.build.json"],
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "lib"
+    "rootDir": ".",
+    "noEmit": true,
   },
-  "include": ["src/**/*"]
-} 
+  "include": ["src"],
+  "exclude": ["src/loader.js"],
+  "references": [
+    { "path": "../css-extract-webpack-plugin/tsconfig.build.json" },
+  ],
+}

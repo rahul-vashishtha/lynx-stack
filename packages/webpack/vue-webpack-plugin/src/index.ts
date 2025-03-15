@@ -5,7 +5,7 @@
 /**
  * @packageDocumentation
  *
- * A webpack plugin to integrate webpack with VueLynx.
+ * A webpack plugin to integrate webpack with ReactLynx.
  */
 
 export { VueWebpackPlugin } from './VueWebpackPlugin.js';
@@ -13,4 +13,4 @@ export type { VueWebpackPluginOptions } from './VueWebpackPlugin.js';
 
 export { LAYERS } from './layer.js';
 
-export type { VueLoaderOptions } from './loaders/options.js'; 
+export type { VueLoaderOptions } from './loaders/options.js';
