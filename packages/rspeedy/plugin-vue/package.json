@@ -37,7 +37,7 @@
     "@lynx-js/css-extract-webpack-plugin": "workspace:*",
     "@lynx-js/runtime-wrapper-webpack-plugin": "workspace:*",
     "@lynx-js/template-webpack-plugin": "workspace:*",
-    "@lynx-js/vue-webpack-plugin": "file:.yalc/@lynx-js/rspeedy-plugin-vue",
+    "@lynx-js/vue-webpack-plugin": "workspace:*",
     "@lynx-js/web-webpack-plugin": "workspace:*"
   },
   "devDependencies": {
