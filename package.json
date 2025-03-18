@@ -12,7 +12,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "cli@2.18.4": "link:napi-rs/cli@2.18.4"
+    "cli@2.18.4": "link:napi-rs/cli@2.18.4",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
