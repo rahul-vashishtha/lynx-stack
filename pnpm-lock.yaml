@@ -663,7 +663,7 @@ importers:
   packages/vue/runtime:
     dependencies:
       vue:
-        specifier: ^3.3.0
+        specifier: ^3.5.13
         version: 3.5.13(typescript@5.7.3)
     devDependencies:
       '@lynx-js/types':
