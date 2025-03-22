@@ -37,7 +37,6 @@
     "@lynx-js/css-extract-webpack-plugin": "workspace:*",
     "@lynx-js/runtime-wrapper-webpack-plugin": "workspace:*",
     "@lynx-js/template-webpack-plugin": "workspace:*",
-    "@lynx-js/vue-refresh-webpack-plugin": "workspace:*",
     "@lynx-js/vue-webpack-plugin": "workspace:*",
     "@lynx-js/web-webpack-plugin": "workspace:*"
   },
