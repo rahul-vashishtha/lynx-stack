@@ -6,7 +6,6 @@ import { applyCSS } from './css.js'
 import { applyEntry } from './entry.js'
 import { applyLazy } from './lazy.js'
 import { applyLoaders } from './loaders.js'
-import { applyRefresh } from './refresh.js'
 import { applySplitChunksRule } from './splitChunks.js'
 import { applySWC } from './swc.js'
 import { validateConfig } from './validate.js'
@@ -323,9 +322,6 @@ export function pluginVueLynx(
 
       // Apply the split chunks rule
       applySplitChunksRule(api)
-
-      // Apply the refresh configuration for HMR
-      applyRefresh(api)
 
       // Apply the alias configuration
       applyAlias(api)
