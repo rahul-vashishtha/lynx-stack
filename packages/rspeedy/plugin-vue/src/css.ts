@@ -2,7 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-import path from 'node:path'
+import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import type { CSSLoaderOptions, RsbuildPluginAPI, Rspack } from '@rsbuild/core'
@@ -150,11 +150,6 @@ export function applyCSS(
         })
         .end()
         .end()
-
-      if (enableRemoveCSSScope !== true) {
-        // TODO: enable CSS minimizer when `LightningCssMinimizerRspackPlugin` supports custom parser options.
-        chain.optimization.minimizers.delete(CHAIN_ID.MINIMIZER.CSS)
-      }
 
       // We add `sideEffects: false` to all Scoped CSS Modules.
       // Since there is no need to emit scoped CSS when the CSS Modules is not used.
