@@ -1,35 +1,38 @@
+<script setup>
+// Import only what's needed from Vue
+import { ref } from "@lynx-js/vue";
 
-<script>
-import './App.css'
-import lynxLogo from './assets/lynx-logo.png'
+const title = "Hello VueLynx";
+const message = "Welcome to Vue 3 in Lynx!";
+const count = ref(0);
 
-export default {
-  data() {
-    return {
-      title: "Hello VueLynx",
-      message: "Welcome to Vue 3 in Lynx!",
-      count: 0,
-    };
-  },
-  methods: {
-    increment() {
-      this.count++;
-    },
-  },
-};
+function increment() {
+  count.value++;
+}
 </script>
+
 <template>
   <view>
-    <image :src="lynxLogo" className='Logo--lynx' />
-    <text className='Title'>Vue</text>
-    <text className='Subtitle'>on Lynx</text>
-    <h1>{{ title }}</h1>
-    <p>{{ message }}</p>
-    <button @click="increment">Count: {{ count }}</button>
+    <text style="font-size: 24px; font-weight: bold; margin-bottom: 8px"
+      >Vue</text
+    >
+    <text style="font-size: 18px; color: #666; margin-bottom: 16px"
+      >on Lynx</text
+    >
+    <text style="color: #42b983; font-size: 20px">{{ title }}</text>
+    <text>{{ message }}</text>
+    <button
+      @click="increment"
+      style="
+        background-color: #42b983;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        margin-top: 8px;
+      "
+    >
+      Count: {{ count }}
+    </button>
   </view>
 </template>
-<style>
-h1 {
-  color: #42b983;
-}
-</style>
