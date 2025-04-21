@@ -6,7 +6,7 @@
   </a>
 </p>
 
-This repository contains the **core JavaScript stack** of Lynx, including [ReactLynx][1], [Rspeedy][2], [Lynx for Web][3], and more. For other repositories in the Lynx family, visit our [org homepage](https://github.com/lynx-family).
+This repository contains the **core JavaScript stack** of Lynx, including [ReactLynx][1], [VueLynx][4], [Rspeedy][2], [Lynx for Web][3], and more. For other repositories in the Lynx family, visit our [org homepage](https://github.com/lynx-family).
 
 ## Content
 
@@ -60,6 +60,7 @@ Thanks to:
 - [React Native for Web](https://necolas.github.io/react-native-web/) project for inspiring the Lynx for Web project, motivating our architectural design with its accessible implementation and interoperability with React DOM.
 - [SWC](https://github.com/swc-project/swc) project created by [@kdy1](https://github.com/kdy1), which turbocharges ReactLynx's code transformation with Rust-powered efficiency, achieving sub-second build times and frictionless developer experience.
 
-[1]: https://github.com/lynx-family/lynx-stack/tree/main/packages/react
-[2]: https://github.com/lynx-family/lynx-stack/tree/main/packages/rspeedy
-[3]: https://github.com/lynx-family/lynx-stack/tree/main/packages/web-platform
+[1]: /packages/react
+[2]: /packages/rspeedy
+[3]: /packages/web-platform
+[4]: /packages/vue
