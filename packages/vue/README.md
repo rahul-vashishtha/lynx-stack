@@ -2,10 +2,17 @@
 
 VueLynx is a framework for developing Lynx applications with familiar Vue 3.
 
+# WIP
+
+This is currently work in progress there is still some issue with :
+
+- webpack plugin bundleling
+
+
 ## Features
 
 - Full Vue 3 Composition API support
-- Thread splitting: template code in main thread, script code in background thread
+- Auto Thread splitting: template code in main thread, script code in background thread
 - Hot Module Replacement (HMR)
 - Vue Single File Components (SFC) support
 - TypeScript support
@@ -33,7 +40,7 @@ const app = createApp(App);
 app.mount("#app");
 ```
 
-## Thread Splitting
+## Auto Thread Splitting
 
 VueLynx splits Vue components into two threads:
 
