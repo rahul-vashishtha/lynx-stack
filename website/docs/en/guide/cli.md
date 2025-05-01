@@ -18,13 +18,21 @@ Just like [Rush](https://rushstack.io/), Rspeedy implements a "version selector"
 
 ## Using Node.js TypeScript support
 
-If the version of Node.js you are using supports the [--experimental-transform-types](https://nodejs.org/api/cli.html#--experimental-transform-types)(v22.7.0) or [--experimental-strip-types](https://nodejs.org/api/cli.html#--experimental-strip-types)(v22.6.0) flag, you can use the built-in TS transformation of Node.js.
+If the version of Node.js you are using supports TypeScript:
+
+1. Node.js >= v23.6
+1. Node.js >= v22.6 with [--experimental-strip-types](https://nodejs.org/api/cli.html#--experimental-strip-types)
+1. Node.js >= v22.7 with [--experimental-transform-types](https://nodejs.org/api/cli.html#--experimental-transform-types)
+
+you can use the built-in TS transformation of Node.js.
 
 ```json title="package.json"
 {
   "build": "NODE_OPTIONS=--experimental-transform-types rspeedy build"
 }
 ```
+
+See [Node.js - TypeScript](https://nodejs.org/api/typescript.html) for more details.
 
 ## rspeedy -h
 
@@ -64,8 +72,12 @@ The `rspeedy dev` command is used to start a local dev server and compile the so
 Usage: rspeedy dev [options]
 
 Options:
-  -c --config <config>  specify the configuration file, can be a relative or absolute path
-  -h, --help            display help for command
+  -b --base <base>          specify the base path of the server
+  -c --config <config>      specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>         specify the env mode to load the .env.[mode] file
+  --environment <name...>   specify the name of environment to build
+  --no-env                  disable loading `.env` files"
+  -h, --help                display help for command
 ```
 
 The dev server will restart automatically when the content of the configuration file is modified.
@@ -80,8 +92,11 @@ The `rspeedy build` command will build the outputs for production in the `dist/`
 Usage: rspeedy build [options]
 
 Options:
-  -c --config <config>  specify the configuration file, can be a relative or absolute path
-  -h, --help            display help for command
+  -c --config <config>      specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>         specify the env mode to load the .env.[mode] file
+  --environment <name...>   specify the name of environment to build
+  --no-env                  disable loading `.env` files"
+  -h, --help                display help for command
 ```
 
 ## rspeedy preview
@@ -94,7 +109,10 @@ The `rspeedy preview` command is used to preview the production build outputs lo
 Usage: rspeedy preview [options]
 
 Options:
+  -b --base <base>      specify the base path of the server
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
+  --no-env              disable loading `.env` files"
   -h, --help            display help for command
 ```
 
@@ -118,6 +136,8 @@ Options:
   --output <output>     specify inspect content output path
   --verbose             show full function definitions in output
   -c --config <config>  specify the configuration file, can be a relative or absolute path
+  --env-mode <mode>     specify the env mode to load the .env.[mode] file
+  --no-env              disable loading `.env` files"
   -h, --help            display help for command
 ```
 

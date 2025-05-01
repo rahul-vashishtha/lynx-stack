@@ -2,20 +2,24 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
+/* LYNX_NATIVE_MODULES_IMPORT */
 import {
   nativeModulesCallEndpoint,
-  switchExposureService,
+  switchExposureServiceEndpoint,
   type Cloneable,
   type NativeModulesMap,
 } from '@lynx-js/web-constants';
 import type { Rpc } from '@lynx-js/web-worker-rpc';
 
 export async function createNativeModules(
-  rpc: Rpc,
+  uiThreadRpc: Rpc,
+  mainThreadRpc: Rpc,
   nativeModulesMap: NativeModulesMap,
 ): Promise<Record<string, any>> {
-  const switchExposure = rpc.createCall(switchExposureService);
-  const nativeModulesCall = rpc.createCall(nativeModulesCallEndpoint);
+  const switchExposure = mainThreadRpc.createCall(
+    switchExposureServiceEndpoint,
+  );
+  const nativeModulesCall = uiThreadRpc.createCall(nativeModulesCallEndpoint);
   const lynxExposureModule = {
     resumeExposure() {
       switchExposure(true, true);
@@ -50,6 +54,7 @@ export async function createNativeModules(
       )
     ),
   );
+  /* LYNX_NATIVE_MODULES_ADD */
 
   return Object.assign(nativeModules, {
     bridge: bridgeModule,

@@ -138,6 +138,7 @@ where
   old_runtime_import_ids: Vec<Id>,
   runtime_id: Lazy<Ident>,
   comments: Option<C>,
+  has_component_is: bool,
 }
 
 impl<C> Default for CompatVisitor<C>
@@ -163,6 +164,7 @@ where
       add_component_element_state: vec![],
       runtime_id: Lazy::new(|| private_ident!("ReactLynx")),
       comments,
+      has_component_is: false,
     }
   }
 
@@ -404,6 +406,7 @@ where
     };
 
     if is_component_is {
+      self.has_component_is = true;
       match &n.opening.name {
         JSXElementName::Ident(_) => {
           n.opening.name = JSXElementName::JSXMemberExpr(JSXMemberExpr {
@@ -998,6 +1001,24 @@ where
       }
       None => {}
     }
+
+    if self.has_component_is {
+      prepend_stmt(
+        &mut n.body,
+        ModuleItem::ModuleDecl(ModuleDecl::Import(ImportDecl {
+          span: DUMMY_SP,
+          phase: ImportPhase::Evaluation,
+          specifiers: vec![],
+          src: Box::new(Str {
+            span: DUMMY_SP,
+            raw: None,
+            value: format!("{}/experimental/lazy/import", self.opts.new_runtime_pkg).into(),
+          }),
+          type_only: Default::default(),
+          with: Default::default(),
+        })),
+      );
+    }
   }
 }
 
@@ -1005,14 +1026,14 @@ where
 mod tests {
   use napi::Either;
   use swc_core::{
-    common::{chain, comments::SingleThreadedComments, Mark},
+    common::{comments::SingleThreadedComments, Mark},
     ecma::{
       parser::{EsSyntax, Syntax},
       transforms::{
         base::{hygiene::hygiene_with_config, resolver},
         testing::test,
       },
-      visit::as_folder,
+      visit::visit_mut_pass,
     },
   };
 
@@ -1025,9 +1046,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_rename_view,
@@ -1043,9 +1064,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_not_rename_view_in_scope,
@@ -1068,9 +1089,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_not_rename_view_redeclaration,
@@ -1089,9 +1110,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_not_handle_jsx_member_expression,
@@ -1107,9 +1128,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_transform_event_props_1,
@@ -1125,9 +1146,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_transform_event_props_2,
@@ -1142,9 +1163,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_handle_recursive,
@@ -1165,9 +1186,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::default()),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::default()),
       hygiene_with_config(Default::default()),
     ),
     should_change_runtime_pkg,
@@ -1182,9 +1203,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           ..Default::default()
@@ -1219,9 +1240,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::B(AddComponentElementConfig {
             compiler_only: true
@@ -1258,9 +1279,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           ..Default::default()
@@ -1281,9 +1302,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::B(AddComponentElementConfig {
             compiler_only: true
@@ -1306,9 +1327,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           // add_component_element: Either::A(true),
           ..Default::default()
@@ -1329,9 +1350,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           simplify_ctor_like_react_lynx_2: true,
@@ -1367,9 +1388,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           simplify_ctor_like_react_lynx_2: true,
@@ -1407,9 +1428,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           simplify_ctor_like_react_lynx_2: true,
@@ -1445,9 +1466,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           simplify_ctor_like_react_lynx_2: true,
@@ -1485,9 +1506,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           add_component_element: Either::A(true),
           simplify_ctor_like_react_lynx_2: true,
@@ -1537,9 +1558,9 @@ mod tests {
       jsx: true,
       ..Default::default()
     }),
-    |_| chain!(
+    |_| (
       resolver(Mark::new(), Mark::new(), true),
-      as_folder(CompatVisitor::<&SingleThreadedComments>::new(
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
         CompatVisitorConfig {
           remove_component_attr_regex: Some("^(on|handle|bind)[A-Z]".into()),
           ..Default::default()
@@ -1558,6 +1579,28 @@ mod tests {
     const a4 = <A {...x} onLoad={console.log} />
     const b = <view onClick={this.handleClick} handleTap={this.handleClick} />
     a1, a2, a3, a4, b;
+    "#
+  );
+
+  test!(
+    module,
+    Syntax::Es(EsSyntax {
+      jsx: true,
+      ..Default::default()
+    }),
+    |_| (
+      resolver(Mark::new(), Mark::new(), true),
+      visit_mut_pass(CompatVisitor::<&SingleThreadedComments>::new(
+        CompatVisitorConfig {
+          ..Default::default()
+        },
+        None
+      )),
+      hygiene_with_config(Default::default()),
+    ),
+    should_add_component_is_import,
+    r#"
+    let c = <component is="xxxx" />;
     "#
   );
 }

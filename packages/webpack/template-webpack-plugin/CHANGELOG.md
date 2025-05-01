@@ -1,5 +1,49 @@
 # @lynx-js/template-webpack-plugin
 
+## 0.6.10
+
+### Patch Changes
+
+- Fix CSS import order when `enableCSSSelector` is false. ([#609](https://github.com/lynx-family/lynx-stack/pull/609))
+
+  When the `enableCSSSelector` option is set to false, style rule priority is inversely related to `@import` order(Lynx CSS engine has the incorrect behavior). Reversing the import order to maintain correct priority is required. For example:
+
+  ```css
+  @import "0.css";
+  @import "1.css";
+  ```
+
+  will convert to:
+
+  ```css
+  @import "1.css";
+  @import "0.css";
+  ```
+
+## 0.6.9
+
+### Patch Changes
+
+- Fix incorrect hash of `background.[contenthash].js` in `.lynx.bundle` files. ([#498](https://github.com/lynx-family/lynx-stack/pull/498))
+
+## 0.6.8
+
+### Patch Changes
+
+- fix: add enableCSSInvalidation for encodeCSS of css HMR, this will fix pseudo-class (such as `:active`) not working in HMR. ([#435](https://github.com/lynx-family/lynx-stack/pull/435))
+
+## 0.6.7
+
+### Patch Changes
+
+- fix: merge different chunk groups for same output filename ([#371](https://github.com/lynx-family/lynx-stack/pull/371))
+
+## 0.6.6
+
+### Patch Changes
+
+- expose main.lynx.bundle to compiler ([#231](https://github.com/lynx-family/lynx-stack/pull/231))
+
 ## 0.6.5
 
 ### Patch Changes

@@ -1,5 +1,32 @@
 # @lynx-js/react-alias-rsbuild-plugin
 
+## 0.9.8
+
+### Patch Changes
+
+- Refactor: Replace built-in `background-only` implementation with npm package ([#602](https://github.com/lynx-family/lynx-stack/pull/602))
+
+  Previously we maintained custom files:
+
+  - `empty.ts` for background thread
+  - `error.ts` for main thread validation
+
+  Now adopting the standard `background-only` npm package
+
+## 0.9.7
+
+## 0.9.6
+
+## 0.9.5
+
+## 0.9.4
+
+## 0.9.3
+
+### Patch Changes
+
+- Fix the issue where the canary version of React was not included in the `rule.include` configuration. ([#275](https://github.com/lynx-family/lynx-stack/pull/275))
+
 ## 0.9.2
 
 ## 0.9.1

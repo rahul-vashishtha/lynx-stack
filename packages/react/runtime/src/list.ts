@@ -15,14 +15,22 @@ export interface ListUpdateInfo {
   onSetAttribute(child: SnapshotInstance, attr: any, oldAttr: any): void;
 }
 
+interface InsertAction {
+  position: number;
+  type: string;
+}
+
 interface UpdateAction {
-  insertAction: {
-    position: number;
-    type: string;
-  }[];
+  from: number;
+  to: number;
+  type: string;
+  flush: boolean;
+}
+
+interface ListOperations {
+  insertAction: InsertAction[];
   removeAction: number[];
-  // TODO: type `updateAction`
-  updateAction: any[];
+  updateAction: UpdateAction[];
 }
 
 // class ListUpdateInfoDiffing implements ListUpdateInfo {
@@ -70,10 +78,12 @@ export class ListUpdateInfoRecording implements ListUpdateInfo {
     //   __FlushElementTree(listElement);
     // });
     __SetAttribute(listElement, 'update-list-info', this.__toAttribute());
+    const [componentAtIndex, componentAtIndexes] = componentAtIndexFactory(this.list.childNodes);
     __UpdateListCallbacks(
       listElement,
-      componentAtIndexFactory(this.list.childNodes),
+      componentAtIndex,
       enqueueComponentFactory(),
+      componentAtIndexes,
     );
   }
 
@@ -115,12 +125,12 @@ export class ListUpdateInfoRecording implements ListUpdateInfo {
     this.platformInfoUpdate.set(child, attr);
   }
 
-  private __toAttribute(): UpdateAction {
+  private __toAttribute(): ListOperations {
     const { removeChild, insertBefore, appendChild, platformInfoUpdate } = this;
 
     const removals: number[] = [];
-    const insertions: { position: number; type: string }[] = [];
-    const updates: any[] = [];
+    const insertions: InsertAction[] = [];
+    const updates: UpdateAction[] = [];
 
     let j = 0;
     for (let i = 0; i < this.oldChildNodes.length; i++, j++) {
@@ -199,7 +209,7 @@ export class ListUpdateInfoRecording implements ListUpdateInfo {
     };
   }
 
-  toJSON(): [UpdateAction] {
+  toJSON(): [ListOperations] {
     // if (this.__pendingAttributes) {
     //   return [...this.__pendingAttributes, this.__toAttribute()];
     // } else {
@@ -235,13 +245,17 @@ export function clearListGlobal(): void {
   }
 }
 
-export function componentAtIndexFactory(ctx: SnapshotInstance[]): ComponentAtIndexCallback {
+export function componentAtIndexFactory(
+  ctx: SnapshotInstance[],
+): [ComponentAtIndexCallback, ComponentAtIndexesCallback] {
   const componentAtIndex = (
     list: FiberElement,
     listID: number,
     cellIndex: number,
     operationID: number,
     enableReuseNotification: boolean,
+    enableBatchRender: boolean = false,
+    asyncFlush: boolean = false,
   ) => {
     const signMap = gSignMap[listID];
     const recycleMap = gRecycleMap[listID];
@@ -276,7 +290,14 @@ export function componentAtIndexFactory(ctx: SnapshotInstance[]): ComponentAtInd
       if (recycleSignMap?.has(sign)) {
         signMap.set(sign, childCtx);
         recycleSignMap.delete(sign);
-        __FlushElementTree(root, { triggerLayout: true, operationID, elementID: sign, listID });
+        if (!enableBatchRender) {
+          __FlushElementTree(root, { triggerLayout: true, operationID, elementID: sign, listID });
+        } else if (enableBatchRender && asyncFlush) {
+          __FlushElementTree(root, { asyncFlush: true });
+        } else {
+          // enableBatchRender == true && asyncFlush == false
+          // in this case, no need to invoke __FlushElementTree because in the end of componentAtIndexes(), the list will invoke __FlushElementTree.
+        }
         return sign;
       } else {
         const newCtx = childCtx.takeElements();
@@ -291,24 +312,31 @@ export function componentAtIndexFactory(ctx: SnapshotInstance[]): ComponentAtInd
       hydrate(oldCtx, childCtx);
       oldCtx.unRenderElements();
       const root = childCtx.__element_root!;
-      if (enableReuseNotification) {
-        __FlushElementTree(root, {
+      if (!enableBatchRender) {
+        const flushOptions: FlushOptions = {
           triggerLayout: true,
           operationID,
           elementID: sign,
           listID,
-          listReuseNotification: {
+        };
+        if (enableReuseNotification) {
+          flushOptions.listReuseNotification = {
             listElement: list,
             itemKey: platformInfo['item-key'],
-          },
-        });
-      } else {
-        __FlushElementTree(root, {
-          triggerLayout: true,
-          operationID,
-          elementID: sign,
-          listID,
-        });
+          };
+        }
+        __FlushElementTree(root, flushOptions);
+      } else if (enableBatchRender && asyncFlush) {
+        const flushOptions: FlushOptions = {
+          asyncFlush: true,
+        };
+        if (enableReuseNotification) {
+          flushOptions.listReuseNotification = {
+            listElement: list,
+            itemKey: platformInfo['item-key'],
+          };
+        }
+        __FlushElementTree(root, flushOptions);
       }
       signMap.set(sign, childCtx);
       commitMainThreadPatchUpdate(undefined);
@@ -319,17 +347,43 @@ export function componentAtIndexFactory(ctx: SnapshotInstance[]): ComponentAtInd
     const root = childCtx.__element_root!;
     __AppendElement(list, root);
     const sign = __GetElementUniqueID(root);
-    __FlushElementTree(root, {
-      triggerLayout: true,
-      operationID,
-      elementID: sign,
-      listID,
-    });
+    if (!enableBatchRender) {
+      __FlushElementTree(root, {
+        triggerLayout: true,
+        operationID,
+        elementID: sign,
+        listID,
+      });
+    } else if (enableBatchRender && asyncFlush) {
+      __FlushElementTree(root, {
+        asyncFlush: true,
+      });
+    }
     signMap.set(sign, childCtx);
     commitMainThreadPatchUpdate(undefined);
     return sign;
   };
-  return componentAtIndex;
+
+  const componentAtIndexes = (
+    list: FiberElement,
+    listID: number,
+    cellIndexes: number[],
+    operationIDs: number[],
+    enableReuseNotification: boolean,
+    asyncFlush: boolean,
+  ) => {
+    const uiSigns = cellIndexes.map((cellIndex, index) => {
+      const operationID = operationIDs[index] ?? 0;
+      return componentAtIndex(list, listID, cellIndex, operationID, enableReuseNotification, true, asyncFlush);
+    });
+    __FlushElementTree(list, {
+      triggerLayout: true,
+      operationIDs: operationIDs,
+      elementIDs: uiSigns,
+      listID,
+    });
+  };
+  return [componentAtIndex, componentAtIndexes] as const;
 }
 
 export function enqueueComponentFactory(): EnqueueComponentCallback {
@@ -363,11 +417,13 @@ export function snapshotCreateList(
 ): FiberElement {
   const signMap = new Map<number, SnapshotInstance>();
   const recycleMap = new Map<string, Map<number, SnapshotInstance>>();
+  const [componentAtIndex, componentAtIndexes] = componentAtIndexFactory([]);
   const list = __CreateList(
     pageId,
-    componentAtIndexFactory([]),
+    componentAtIndex,
     enqueueComponentFactory(),
     {},
+    componentAtIndexes,
   );
   const listID = __GetElementUniqueID(list);
   gSignMap[listID] = signMap;

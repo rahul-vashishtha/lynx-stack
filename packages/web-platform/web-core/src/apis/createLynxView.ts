@@ -9,18 +9,26 @@ import type {
   sendGlobalEventEndpoint,
   UpdateDataType,
 } from '@lynx-js/web-constants';
-import { startUIThread } from '../uiThread/startUIThread.js';
+import {
+  startUIThread,
+  type StartUIThreadCallbacks,
+} from '../uiThread/startUIThread.js';
 import type { RpcCallType } from '@lynx-js/web-worker-rpc';
+const pixelRatio = window.devicePixelRatio;
+const screenWidth = window.screen.availWidth * pixelRatio;
+const screenHeight = window.screen.availHeight * pixelRatio;
 
 export interface LynxViewConfigs {
   templateUrl: string;
   initData: Cloneable;
   globalProps: Cloneable;
-  rootDom: HTMLElement;
-  callbacks: Parameters<typeof startUIThread>[3];
+  shadowRoot: ShadowRoot;
+  callbacks: StartUIThreadCallbacks;
   nativeModulesMap: NativeModulesMap;
   napiModulesMap: NapiModulesMap;
   tagMap: Record<string, string>;
+  lynxGroupId: number | undefined;
+  threadStrategy: 'all-on-ui' | 'multi-thread';
 }
 
 export interface LynxView {
@@ -35,7 +43,7 @@ export interface LynxView {
 
 export function createLynxView(configs: LynxViewConfigs): LynxView {
   const {
-    rootDom,
+    shadowRoot,
     callbacks,
     templateUrl,
     globalProps,
@@ -43,6 +51,8 @@ export function createLynxView(configs: LynxViewConfigs): LynxView {
     nativeModulesMap,
     napiModulesMap,
     tagMap,
+    lynxGroupId,
+    threadStrategy = 'multi-thread',
   } = configs;
   return startUIThread(
     templateUrl,
@@ -52,9 +62,15 @@ export function createLynxView(configs: LynxViewConfigs): LynxView {
       globalProps,
       nativeModulesMap,
       napiModulesMap,
-      browserConfig: {},
+      browserConfig: {
+        pixelRatio: window.devicePixelRatio,
+        pixelWidth: screenWidth,
+        pixelHeight: screenHeight,
+      },
     },
-    rootDom,
+    shadowRoot,
+    lynxGroupId,
+    threadStrategy,
     callbacks,
   );
 }

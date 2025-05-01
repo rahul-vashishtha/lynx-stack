@@ -1,6 +1,25 @@
 coverage:
   status:
-    project: off
+    project:
+      default:
+        threshold: "0%"
+        informational: true
+      react:
+        threshold: "0%"
+        paths:
+          - packages/react
+      rspeedy:
+        threshold: "0%"
+        paths:
+          - packages/rspeedy
+      webpack:
+        threshold: "0%"
+        paths:
+          - packages/webpack
+      web-platform:
+        threshold: "0%"
+        paths:
+          - packages/web-platform
     patch:
       default:
         threshold: "1%"
@@ -12,12 +31,16 @@ parsers:
   javascript:
     enable_partials: yes
 
+github_checks:
+  annotations: false
+
 comment:
   layout: "header, diff, flags, components" # show component info in the PR comment
   behavior: default
   require_changes: true # if true: only post the comment if coverage changes
   require_base: false # [true :: must have a base report to post]
   require_head: true # [true :: must have a head report to post]
+  require_bundle_changes: true # for web-explorer
 
 component_management:
   default_rules: # default rules that will be inherited by all components
@@ -39,3 +62,7 @@ component_management:
       name: Webpack
       paths:
         - packages/webpack/**
+    - component_id: web
+      name: Web Platform
+      paths:
+        - packages/web-platform/**

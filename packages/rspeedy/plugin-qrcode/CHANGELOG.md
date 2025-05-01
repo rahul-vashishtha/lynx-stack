@@ -1,5 +1,17 @@
 # @lynx-js/qrcode-rsbuild-plugin
 
+## 0.3.6
+
+### Patch Changes
+
+- Fix the issue where QR code fails to print after initial compilation errors are fixed. ([#610](https://github.com/lynx-family/lynx-stack/pull/610))
+
+## 0.3.5
+
+### Patch Changes
+
+- Build with Rslib ([#396](https://github.com/lynx-family/lynx-stack/pull/396))
+
 ## 0.3.4
 
 ### Patch Changes

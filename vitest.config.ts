@@ -9,8 +9,11 @@ export default defineConfig({
     coverage: {
       exclude: [
         '**/*.d.ts',
+        '**/*.test-d.*',
         '**/vitest.config.ts',
         '**/rslib.config.ts',
+        '**/*.bench.js',
+        '**/*.bench.ts',
         '**/dist/**',
         '.github/**',
         'examples/**',
@@ -21,12 +24,15 @@ export default defineConfig({
         'packages/react/transform/tests/__swc_snapshots__/**',
         'packages/rspeedy/create-rspeedy/template-*/**',
 
+        // cSpell:disable-next-line
         '.lintstagedrc.mjs',
         'eslint.config.js',
 
         'packages/tools/canary-release/**',
         'packages/web-platform/**',
         'packages/webpack/test-tools/**',
+        'packages/testing-library/test-environment/**',
+        'packages/react/testing-library/**',
       ],
     },
 

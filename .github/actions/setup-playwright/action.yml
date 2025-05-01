@@ -17,7 +17,7 @@ runs:
         echo "version=$(pnpm ls @playwright/test --depth=0 --parseable | grep @playwright | sed -E 's/.*@([0-9]+\.[0-9]+\.[0-9]+).*/\1/')" >> "$GITHUB_OUTPUT"
       shell: bash
     - name: Cache Playwright
-      uses: actions/cache@v4
+      uses: lynx-infra/cache@558d7c999f9f97ac02ed7e711503bb81d82ff8ee
       id: playwright-cache
       with:
         path: ${{ (runner.os == 'Linux' && '~/.cache/ms-playwright') || '~/Library/Caches/ms-playwright' }}
@@ -26,11 +26,11 @@ runs:
       if: steps.playwright-cache.outputs.cache-hit == 'true'
       working-directory: ${{ inputs.working-directory }}
       run: |
-        npx playwright install-deps
+        npx playwright install-deps chromium firefox webkit
       shell: bash
     - name: Install Playwright with dependencies
       if: steps.playwright-cache.outputs.cache-hit != 'true'
       working-directory: ${{ inputs.working-directory }}
       run: |
-        npx playwright install --with-deps
+        npx playwright install --with-deps chromium firefox webkit
       shell: bash

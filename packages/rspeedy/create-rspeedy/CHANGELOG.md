@@ -1,5 +1,25 @@
 # create-rspeedy
 
+## 0.9.3
+
+### Patch Changes
+
+- Add testing library for ReactLynx ([#74](https://github.com/lynx-family/lynx-stack/pull/74))
+
+- Use `"jsx": "react-jsx"` with `"jsxImportSource": "@lynx-js/react"`. ([#545](https://github.com/lynx-family/lynx-stack/pull/545))
+
+## 0.9.2
+
+## 0.9.1
+
+## 0.9.0
+
+## 0.8.7
+
+## 0.8.6
+
+## 0.8.5
+
 ## 0.8.4
 
 ## 0.8.3

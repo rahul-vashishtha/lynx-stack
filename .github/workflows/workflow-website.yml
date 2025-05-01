@@ -15,10 +15,11 @@ jobs:
         with:
           node-version: "22"
       - name: TurboCache
-        uses: actions/cache@v4
+        uses: lynx-infra/cache@558d7c999f9f97ac02ed7e711503bb81d82ff8ee
         with:
           path: .turbo
           key: turbo-v3-${{ hashFiles('**/packages/**/src/**/*.rs') }}-${{ github.sha }}
+          fail-on-cache-miss: true
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Install
