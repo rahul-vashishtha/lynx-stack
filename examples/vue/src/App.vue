@@ -1,6 +1,7 @@
 <script setup>
 // Import only what's needed from Vue
 import { ref } from "@lynx-js/vue";
+import { View, Text, Button } from "@lynx-js/vue/runtime-components";
 
 const title = "Hello VueLynx";
 const message = "Welcome to Vue 3 in Lynx!";
@@ -12,16 +13,17 @@ function increment() {
 </script>
 
 <template>
-  <view>
-    <text style="font-size: 24px; font-weight: bold; margin-bottom: 8px"
-      >Vue</text
-    >
-    <text style="font-size: 18px; color: #666; margin-bottom: 16px"
-      >on Lynx</text
-    >
-    <text style="color: #42b983; font-size: 20px">{{ title }}</text>
-    <text>{{ message }}</text>
-    <button
+  <div>test</div>
+  <View>
+    <Text style="font-size: 24px; font-weight: bold; margin-bottom: 8px">
+      Vue
+    </Text>
+    <Text style="font-size: 18px; color: #666; margin-bottom: 16px">
+      on Lynx
+    </Text>
+    <Text style="color: #42b983; font-size: 20px">{{ title }}</Text>
+    <Text>{{ message }}</Text>
+    <Button
       @click="increment"
       style="
         background-color: #42b983;
@@ -33,6 +35,6 @@ function increment() {
       "
     >
       Count: {{ count }}
-    </button>
-  </view>
+    </Button>
+  </View>
 </template>
