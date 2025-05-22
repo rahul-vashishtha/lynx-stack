@@ -1,6 +1,7 @@
+// Copyright 2024 The Lynx Authors. All rights reserved.
+// Licensed under the Apache License Version 2.0 that can be found in the
+// LICENSE file in the root directory of this source tree.
 import type { RsbuildPlugin } from '@rsbuild/core'
-
-import { applyAlias } from './alias.js'
 import { applyBackgroundOnly } from './backgroundOnly.js'
 import { applyCSS } from './css.js'
 import { applyEntry } from './entry.js'
@@ -324,7 +325,7 @@ export function pluginVueLynx(
       applySplitChunksRule(api)
 
       // Apply the alias configuration
-      applyAlias(api)
+      // applyAlias(api)
 
       // Apply the background only configuration
       applyBackgroundOnly(api)

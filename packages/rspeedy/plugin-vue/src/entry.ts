@@ -1,7 +1,3 @@
-// Copyright 2024 The Lynx Authors. All rights reserved.
-// Licensed under the Apache License Version 2.0 that can be found in the
-// LICENSE file in the root directory of this source tree.
-import { createRequire } from 'node:module'
 import path from 'node:path'
 
 import type {
@@ -12,16 +8,15 @@ import type {
 import type { UndefinedOnPartialDeep } from 'type-fest'
 
 // Import the mock Vue webpack plugin instead of the actual one
-import { LAYERS, VueWebpackPlugin } from '@lynx-js/vue-webpack-plugin'
+import { CssExtractWebpackPlugin } from '@lynx-js/css-extract-webpack-plugin'
 import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {
   CSSPlugins,
-  LynxEncodePlugin,
   LynxTemplatePlugin,
 } from '@lynx-js/template-webpack-plugin'
+import { LAYERS, VueWebpackPlugin } from '@lynx-js/vue-webpack-plugin'
 import { WebWebpackPlugin } from '@lynx-js/web-webpack-plugin'
-import { CssExtractWebpackPlugin } from '@lynx-js/css-extract-webpack-plugin'
 
 import type { PluginVueLynxOptions } from './pluginVueLynx.js'
 
@@ -121,7 +116,8 @@ export function applyEntry(
             scriptInBackground: true,
             // Vue-specific optimizations
             optimizeSSR: false,
-            disableCompatibilityWarnings: compat?.disableCompatibilityWarnings ?? false,
+            disableCompatibilityWarnings: compat?.disableCompatibilityWarnings
+              ?? false,
           }])
 
         // Configure the main thread entry
@@ -129,7 +125,7 @@ export function applyEntry(
           .entry(mainThreadEntry)
           .add({
             layer: LAYERS.MAIN_THREAD,
-            import: imports,
+            import: imports.join(''),
             filename: mainThreadName,
           })
 
@@ -150,7 +146,7 @@ export function applyEntry(
           .entry(backgroundEntry)
           .add({
             layer: LAYERS.BACKGROUND,
-            import: imports,
+            import: imports.join(''),
             filename: backgroundName,
           })
 
@@ -179,10 +175,11 @@ export function applyEntry(
           .use(LynxTemplatePlugin, [{
             dsl: 'vue_template',
             chunks: [mainThreadEntry, backgroundEntry],
-            filename: templateFilename.replaceAll('[name]', entryName).replaceAll(
-              '[platform]',
-              'lynx',
-            ),
+            filename: templateFilename.replaceAll('[name]', entryName)
+              .replaceAll(
+                '[platform]',
+                'lynx',
+              ),
             customCSSInheritanceList,
             debugInfoOutside,
             defaultDisplayLinear,
@@ -323,4 +320,4 @@ function getHash(config: NormalizedEnvironmentConfig, isProd: boolean): string {
     return EMPTY_HASH
   }
   return isProd ? DEFAULT_FILENAME_HASH : EMPTY_HASH
-} 
+}
