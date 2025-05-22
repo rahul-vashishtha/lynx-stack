@@ -20,7 +20,7 @@ import { initWorklet } from '../../worklet-runtime/lib/workletRuntime.js';
 const {
   onInjectMainThreadGlobals,
   onInjectBackgroundThreadGlobals,
-  onResetLynxEnv,
+  onResetLynxTestingEnv,
   onSwitchedToMainThread,
   onSwitchedToBackgroundThread,
   onInitWorkletRuntime,
@@ -123,30 +123,38 @@ globalThis.onInjectBackgroundThreadGlobals = (target) => {
 
   // TODO: can we only inject to target(mainThread.globalThis) instead of globalThis?
   // packages/react/runtime/src/lynx.ts
-  // intercept lynxCoreInject assignments to lynxEnv.backgroundThread.globalThis.lynxCoreInject
+  // intercept lynxCoreInject assignments to lynxTestingEnv.backgroundThread.globalThis.lynxCoreInject
   const oldLynxCoreInject = globalThis.lynxCoreInject;
   globalThis.lynxCoreInject = target.lynxCoreInject;
   injectTt();
   globalThis.lynxCoreInject = oldLynxCoreInject;
 
+  target.lynx.requireModuleAsync = async (url, callback) => {
+    try {
+      callback(null, await __vite_ssr_dynamic_import__(url));
+    } catch (err) {
+      callback(err, null);
+    }
+  };
+
   // re-init global snapshot patch to undefined
   deinitGlobalSnapshotPatch();
   clearCommitTaskId();
 };
-globalThis.onResetLynxEnv = () => {
-  if (onResetLynxEnv) {
-    onResetLynxEnv();
+globalThis.onResetLynxTestingEnv = () => {
+  if (onResetLynxTestingEnv) {
+    onResetLynxTestingEnv();
   }
   if (process.env.DEBUG) {
-    console.log('onResetLynxEnv');
+    console.log('onResetLynxTestingEnv');
   }
 
   flushDelayedLifecycleEvents();
   destroyWorklet();
 
-  lynxEnv.switchToMainThread();
+  lynxTestingEnv.switchToMainThread();
   initEventListeners();
-  lynxEnv.switchToBackgroundThread();
+  lynxTestingEnv.switchToBackgroundThread();
 };
 
 globalThis.onSwitchedToMainThread = () => {
@@ -173,8 +181,8 @@ globalThis.onSwitchedToBackgroundThread = () => {
 };
 
 globalThis.onInjectMainThreadGlobals(
-  globalThis.lynxEnv.mainThread.globalThis,
+  globalThis.lynxTestingEnv.mainThread.globalThis,
 );
 globalThis.onInjectBackgroundThreadGlobals(
-  globalThis.lynxEnv.backgroundThread.globalThis,
+  globalThis.lynxTestingEnv.backgroundThread.globalThis,
 );

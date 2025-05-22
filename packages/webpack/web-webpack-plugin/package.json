@@ -1,6 +1,6 @@
 {
   "name": "@lynx-js/web-webpack-plugin",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "private": false,
   "description": "TBD",
   "keywords": [],
@@ -31,9 +31,9 @@
   "devDependencies": {
     "@lynx-js/template-webpack-plugin": "workspace:*",
     "@lynx-js/test-tools": "workspace:*",
-    "webpack": "^5.99.6"
+    "webpack": "^5.99.9"
   },
   "peerDependencies": {
-    "@lynx-js/template-webpack-plugin": "^0.6.0"
+    "@lynx-js/template-webpack-plugin": "^0.6.0 || ^0.7.0"
   }
 }

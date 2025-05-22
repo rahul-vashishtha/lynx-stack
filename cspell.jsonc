@@ -87,6 +87,8 @@
     "renovaterc",
     "rollup", // https://github.com/rollup/rollup
     "runable",
+    "shiki",
+    "shikijs",
     "svitejs", // https://github.com/svitejs/changesets-changelog-github-compact
     "speedscope",
     "tailwindcss",
@@ -135,6 +137,8 @@
     // lighthouse CI
     "lhci",
     "lh",
+    "queueMicrotask",
+    "rustup", // Rust installer/manager
   ],
   // Glob
   "ignorePaths": [

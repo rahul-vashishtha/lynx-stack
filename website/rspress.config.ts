@@ -7,6 +7,11 @@ import { join } from 'node:path';
 
 import { pluginSass } from '@rsbuild/plugin-sass';
 import type { Sidebar } from '@rspress/shared';
+import {
+  transformerNotationDiff,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+} from '@shikijs/transformers';
 import { defineConfig } from 'rspress/config';
 
 import { createAPI, createChangelogs } from './sidebars/index.js';
@@ -41,6 +46,14 @@ const SIDEBARS = {
     createAPI({
       name: 'react-rsbuild-plugin',
       skips: [
+        // Transform options
+        'AddComponentElementConfig',
+        'CompatVisitorConfig',
+        'DefineDceVisitorConfig',
+        'ExtractStrConfig',
+        'JsxTransformerConfig',
+        'ShakeVisitorConfig',
+
         'PluginReactLynxOptions',
       ],
     }),
@@ -92,6 +105,7 @@ const SIDEBARS = {
         'Config',
 
         // Sub Configurations
+        'BuildCache',
         'ChunkSplit',
         'ChunkSplitBySize',
         'ChunkSplitCustom',
@@ -129,7 +143,7 @@ const SIDEBARS = {
         'version',
         'rspackVersion',
       ],
-      collapsed: false,
+      collapsed: true,
       depth: 3,
     }).items as Sidebar[string],
   ],
@@ -163,6 +177,14 @@ const SIDEBARS_ZH = {
       base: 'zh/api',
       name: 'react-rsbuild-plugin',
       skips: [
+        // Transform options
+        'AddComponentElementConfig',
+        'CompatVisitorConfig',
+        'DefineDceVisitorConfig',
+        'ExtractStrConfig',
+        'JsxTransformerConfig',
+        'ShakeVisitorConfig',
+
         'PluginReactLynxOptions',
       ],
     }),
@@ -215,6 +237,7 @@ const SIDEBARS_ZH = {
         'Config',
 
         // Sub Configurations
+        'BuildCache',
         'ChunkSplit',
         'ChunkSplitBySize',
         'ChunkSplitCustom',
@@ -252,7 +275,7 @@ const SIDEBARS_ZH = {
         'version',
         'rspackVersion',
       ],
-      collapsed: false,
+      collapsed: true,
       depth: 3,
     }).items as Sidebar[string],
   ],
@@ -343,6 +366,13 @@ export default defineConfig({
   icon: '/rspeedy.png',
   markdown: {
     checkDeadLinks: true,
+    shiki: {
+      transformers: [
+        transformerNotationDiff(),
+        transformerNotationFocus(),
+        transformerNotationHighlight(),
+      ],
+    },
   },
   route: {
     cleanUrls: true,

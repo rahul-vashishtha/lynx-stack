@@ -59,11 +59,11 @@ export function render(
   const compMainThread = cloneElement(comp);
   const compBackgroundThread = cloneElement(comp);
 
-  globalThis.lynxEnv.switchToMainThread();
+  globalThis.lynxTestingEnv.switchToMainThread();
   __root.__jsx = enableMainThread ? compMainThread : null;
   renderPage();
   if (enableBackgroundThread) {
-    globalThis.lynxEnv.switchToBackgroundThread();
+    globalThis.lynxTestingEnv.switchToBackgroundThread();
     act(() => {
       preactRender(compBackgroundThread, __root);
       flushDelayedLifecycleEvents();
@@ -71,10 +71,10 @@ export function render(
   }
 
   return {
-    container: lynxEnv.mainThread.elementTree.root,
+    container: lynxTestingEnv.mainThread.elementTree.root,
     unmount: cleanup,
     rerender: (rerenderUi) => {
-      lynxEnv.resetLynxEnv();
+      lynxTestingEnv.reset();
       return render(wrapUiIfNeeded(rerenderUi), {
         queries,
         wrapper: WrapperComponent,
@@ -82,7 +82,7 @@ export function render(
         enableBackgroundThread,
       });
     },
-    ...getQueriesForElement(lynxEnv.mainThread.elementTree.root, queries),
+    ...getQueriesForElement(lynxTestingEnv.mainThread.elementTree.root, queries),
   };
 }
 
@@ -90,17 +90,17 @@ export function cleanup() {
   const isMainThread = __MAIN_THREAD__;
 
   // Ensure componentWillUnmount is called
-  globalThis.lynxEnv.switchToBackgroundThread();
+  globalThis.lynxTestingEnv.switchToBackgroundThread();
   act(() => {
     preactRender(null, __root);
   });
 
-  lynxEnv.mainThread.elementTree.root = undefined;
+  lynxTestingEnv.mainThread.elementTree.root = undefined;
   clearPage();
-  lynxEnv.jsdom.window.document.body.innerHTML = '';
+  lynxTestingEnv.jsdom.window.document.body.innerHTML = '';
 
   if (isMainThread) {
-    globalThis.lynxEnv.switchToMainThread();
+    globalThis.lynxTestingEnv.switchToMainThread();
   }
 }
 

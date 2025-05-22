@@ -1,14 +1,37 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+
+/**
+ * Implements the patch application logic for the snapshot system.
+ * This module is responsible for interpreting and executing patch operations
+ * that were generated in the background thread, applying them to the DOM
+ * in the main thread.
+ *
+ * The module handles various operations like element creation, insertion,
+ * removal, and attribute updates, ensuring they are applied in the correct
+ * order and with proper error handling.
+ */
+
+import {
+  SnapshotInstance,
+  createSnapshot,
+  entryUniqID,
+  snapshotInstanceManager,
+  snapshotManager,
+} from '../../snapshot.js';
 import type { SnapshotPatch } from './snapshotPatch.js';
 import { SnapshotOperation } from './snapshotPatch.js';
-import { SnapshotInstance, createSnapshot, snapshotInstanceManager, snapshotManager } from '../../snapshot.js';
 
 function reportCtxNotFound(): void {
   lynx.reportError(new Error(`snapshotPatchApply failed: ctx not found`));
 }
 
+/**
+ * Applies a patch of snapshot operations to the main thread.
+ * This is the counterpart to the patch generation in the background thread.
+ * Each operation in the patch is processed sequentially to update the DOM.
+ */
 export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
   const length = snapshotPatch.length;
   for (let i = 0; i < length; ++i) {
@@ -77,7 +100,7 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
           const cssId: number = snapshotPatch[++i] ?? 0;
           const entryName: string | undefined = snapshotPatch[++i];
 
-          if (!snapshotManager.values.has(uniqID)) {
+          if (!snapshotManager.values.has(entryUniqID(uniqID, entryName))) {
             // HMR-related
             // Update the evaluated snapshots from JS.
             createSnapshot(
@@ -107,10 +130,8 @@ export function snapshotPatchApply(snapshotPatch: SnapshotPatch): void {
 }
 
 /**
- * Given an expression string, return the evaluated result with ReactLynx runtime injected.
- *
- * @param code - The code to be evaluated
- * @returns the evaluated expression
+ * Evaluates a string as code with ReactLynx runtime injected.
+ * Used for HMR (Hot Module Replacement) to update snapshot definitions.
  */
 function evaluate<T>(code: string): T {
   return new Function(`return ${code}`)();

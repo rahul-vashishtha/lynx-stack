@@ -45,41 +45,314 @@ export interface PartialLocation {
   suggestion?: string
 }
 export interface DarkModeConfig {
-  /** @public */
+  /**
+   * @public
+   * Theme expression to be used for dark mode
+   */
   themeExpr: string
 }
+/**
+ * {@inheritdoc CompatVisitorConfig.addComponentElement}
+ * @public
+ */
 export interface AddComponentElementConfig {
-  /** @public */
+  /**
+   * @public
+   * Whether to only add component element during compilation
+   *
+   * @example
+   *
+   * Note that this only take effects on `Component` imported from {@link CompatVisitorConfig.oldRuntimePkg}.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         addComponentElement: { compilerOnly: true }
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   compilerOnly: boolean
 }
+/**
+ * {@inheritdoc PluginReactLynxOptions.compat}
+ * @public
+ */
 export interface CompatVisitorConfig {
   /** @internal */
   target: 'LEPUS' | 'JS' | 'MIXED'
-  /** @public */
+  /**
+   * @public
+   * Specifies the list of component package names that need compatibility processing
+   *
+   * @remarks
+   * Default value: `['@lynx-js/react-components']`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         componentsPkg: ['@my-org/components', '@legacy/ui-kit']
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   componentsPkg: Array<string>
-  /** @public */
+  /**
+   * @public
+   * Specifies the list of old runtime package names that need compatibility processing
+   *
+   * @remarks
+   * Default value: `['@lynx-js/react-runtime']`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         oldRuntimePkg: ['@my-org/runtime', '@legacy/runtime']
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   oldRuntimePkg: Array<string>
-  /** @public */
+  /**
+   * @public
+   * Specifies the new runtime package name
+   *
+   * @remarks
+   * Default value: `'@lynx-js/react'`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         newRuntimePkg: '@my-org/react'
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   newRuntimePkg: string
-  /** @public */
+  /**
+   * @public
+   * Specifies additional component attributes list, these attributes will be passed to the wrapped `<view>` instead of the component.
+   *
+   * @remarks
+   * This only takes effect when {@link CompatVisitorConfig.addComponentElement} is enabled.
+   *
+   * Default value: `[]`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         additionalComponentAttributes: ['custom-attr', 'data-special']
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   additionalComponentAttributes: Array<string>
-  /** @public */
+  /**
+   * @public
+   * Controls whether to add wrapper elements for components
+   *
+   * @remarks
+   * Default value: `false`
+   *
+   * @example
+   *
+   * Add a `<view>` wrapper element for all components during runtime.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         addComponentElement: true
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   *
+   * @example
+   *
+   * Only add component element during compilation.
+   * Note that this only take effects on `Component` imported from {@link CompatVisitorConfig.oldRuntimePkg}.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         addComponentElement: { compilerOnly: true }
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   addComponentElement: boolean | AddComponentElementConfig
   /**
    * @public
+   * Whether to simplify constructor calls like ReactLynx 2
+   *
    * @deprecated
+   * Using `simplifyCtorLikeReactLynx2` is not recommended as it introduces implicit behaviors that can:
+   *
+   * - Make code harder to understand and maintain
+   *
+   * - Create hidden dependencies between components
+   *
+   * - Complicate debugging and testing processes
+   *
+   * Instead, use `background-only` on class methods for explicit and maintainable behavior
+   *
+   * @remarks
+   * Default value: `false`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         simplifyCtorLikeReactLynx2: true
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
    */
   simplifyCtorLikeReactLynx2: boolean
   /**
    * @public
-   * @deprecated
+   * Regular expression used to remove component attributes
+   *
+   * @deprecated It's recommended to use `background-only`.
+   *
+   * If your code depends on this switch, when distributing it to other projects through npm packages or other means, you'll also need to enable this switch. This will lead to the proliferation of switches, which is not conducive to code reuse between different projects.
+   *
+   * @remarks
+   * Default value: `None`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         removeComponentAttrRegex: '^data-test-'
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
    */
   removeComponentAttrRegex?: string
-  /** @public */
+  /**
+   * @public
+   * Whether to disable deprecated warnings
+   *
+   * @remarks
+   * Default value: `false`
+   *
+   * @example
+   *
+   * Disable all the `DEPRECATED:` warnings.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         disableDeprecatedWarning: true
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   disableDeprecatedWarning: boolean
   /**
    * @public
    * @deprecated
+   * Dark mode configuration
+   *
+   * @remarks
+   * Default value: `None`
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       compat: {
+   *         darkMode: true
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
    */
   darkMode?: boolean | DarkModeConfig
 }
@@ -89,8 +362,57 @@ export interface CssScopeVisitorConfig {
   /** @public */
   filename: string
 }
+/**
+ * {@inheritdoc PluginReactLynxOptions.defineDCE}
+ * @public
+ */
 export interface DefineDceVisitorConfig {
-  /** @public */
+  /**
+   * @public
+   * Replaces variables in your code with other values or expressions at compile time.
+   *
+   * @remarks
+   * Caveat: differences between `source.define`
+   *
+   * `defineDCE` happens before transforming `background-only` directives.
+   * So it's useful for eliminating code that is only used in the background from main-thread.
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       defineDCE: {
+   *         define: {
+   *           __FOO__: 'false',
+   *           'process.env.PLATFORM': '"lynx"',
+   *         },
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   *
+   * Then, `__FOO__` and `process.env.PLATFORM` could be used in source code.
+   *
+   * ```
+   * if (process.env.PLATFORM === 'lynx') {
+   *   console.log('lynx')
+   * }
+   *
+   * function FooOrBar() {
+   *   if (__FOO__) {
+   *     return <text>foo</text>
+   *   } else {
+   *     return <text>bar</text>
+   *   }
+   * }
+   * ```
+   */
   define: Record<string, string>
 }
 export interface DirectiveDceVisitorConfig {
@@ -103,8 +425,35 @@ export interface DynamicImportVisitorConfig {
   /** @internal */
   layer: string
 }
+/**
+ * {@inheritdoc PluginReactLynxOptions.extractStr}
+ * @public
+ */
 export interface ExtractStrConfig {
-  /** @public */
+  /**
+   * @public
+   * The minimum length of string literals to be extracted.
+   *
+   * @remarks
+   * Default value: `20`.
+   *
+   * @example
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       extractStr: {
+   *         strLength: 10,
+   *       },
+   *     })
+   *   ],
+   * })
+   * ```
+   */
   strLength: number
   /** @internal */
   extractedStrArr?: Array<string>
@@ -115,18 +464,98 @@ export interface InjectVisitorConfig {
 export interface RefreshVisitorConfig {
   library?: Array<string>
 }
+/**
+ * {@inheritdoc PluginReactLynxOptions.shake}
+ * @public
+ */
 export interface ShakeVisitorConfig {
-  /** @public */
+  /**
+   * Package names to identify runtime imports that need to be processed
+   *
+   * @example
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       shake: {
+   *         pkgName: ['@lynx-js/react-runtime']
+   *       }
+   *     })
+   *   ]
+   * })
+   * ```
+   *
+   * @remarks
+   * Default value: `['@lynx-js/react-runtime']`
+   * The provided values will be merged with the default values instead of replacing them.
+   * @public
+   */
   pkgName: Array<string>
-  /** @public */
+  /**
+   * Properties that should be retained in the component class
+   *
+   * @example
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       shake: {
+   *         retainProp: ['myCustomMethod']
+   *       }
+   *     })
+   *   ]
+   * })
+   * ```
+   *
+   * @remarks
+   * Default value: `['constructor', 'render', 'getDerivedStateFromProps', 'state', 'defaultDataProcessor', 'dataProcessors', 'contextType', 'defaultProps']`
+   * The provided values will be merged with the default values instead of replacing them.
+   *
+   * @public
+   */
   retainProp: Array<string>
-  /** @public */
+  /**
+   * Function names whose parameters should be removed during transformation
+   *
+   * @example
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   * import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+   *
+   * export default defineConfig({
+   *   plugins: [
+   *     pluginReactLynx({
+   *       shake: {
+   *         removeCallParams: ['useMyCustomEffect']
+   *       }
+   *     })
+   *   ]
+   * })
+   * ```
+   *
+   * @remarks
+   * Default value: `['useEffect', 'useLayoutEffect', '__runInJS', 'useLynxGlobalEventListener', 'useImperativeHandle']`
+   * The provided values will be merged with the default values instead of replacing them.
+   *
+   * @public
+   */
   removeCallParams: Array<string>
 }
+/** @internal */
 export interface JsxTransformerConfig {
+  /** @internal */
   preserveJsx: boolean
+  /** @internal */
   runtimePkg: string
+  /** @internal */
   jsxImportSource?: string
+  /** @internal */
   filename: string
   /** @internal */
   target: 'LEPUS' | 'JS' | 'MIXED'

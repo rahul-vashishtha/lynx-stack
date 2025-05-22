@@ -4,16 +4,16 @@
 import { glob } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from '@lynx-js/rspeedy';
+import { defineConfig, type Config } from '@lynx-js/rspeedy';
 import { commonConfig } from './commonConfig.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const reactBasicCases = await Array.fromAsync(glob(
-  path.join(__dirname, '{basic,api}-*', 'index.jsx'),
+  path.join(__dirname, 'basic-*', 'index.jsx'),
 ));
 
-export default defineConfig({
+const _default_1: Config = defineConfig({
   ...commonConfig(),
   source: {
     entry: Object.fromEntries(reactBasicCases.map((reactBasicEntry) => {
@@ -24,3 +24,4 @@ export default defineConfig({
     })),
   },
 });
+export default _default_1;

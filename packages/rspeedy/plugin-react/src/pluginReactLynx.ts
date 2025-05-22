@@ -15,10 +15,10 @@ import type { RsbuildPlugin } from '@rsbuild/core'
 import type {
   CompatVisitorConfig,
   DefineDceVisitorConfig,
+  ExtractStrConfig,
   JsxTransformerConfig,
   ShakeVisitorConfig,
-} from '@lynx-js/react/transform'
-import type { ExtractStrConfig } from '@lynx-js/react-webpack-plugin'
+} from '@lynx-js/react-transform'
 import type { ExposedAPI } from '@lynx-js/rspeedy'
 
 import { applyAlias } from './alias.js'
@@ -238,6 +238,8 @@ export interface PluginReactLynxOptions {
 
   /**
    * The `jsx` option controls how JSX is transformed.
+   *
+   * @internal
    */
   jsx?: Partial<JsxTransformerConfig> | undefined
 

@@ -117,11 +117,12 @@ test.describe('reactlynx3 tests', () => {
     test('basic-setstate-in-constructor', async ({ page }, { title }) => {
       await goto(page, title);
       await wait(200);
-      await expectHasText(page, 'awesome');
+      const target = page.locator('#target');
+      await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
     });
     test('basic-setsate-with-cb', async ({ page }, { title }) => {
       await goto(page, title);
-      await wait(300);
+      await wait(400);
       await expectHasText(page, 'awesome');
       await expectNoText(page, 'success');
     });
@@ -387,6 +388,16 @@ test.describe('reactlynx3 tests', () => {
       await wait(100);
       await expect(page.locator('#target')).toHaveCSS('color', 'rgb(0, 0, 0)');
     });
+    test('basic-globalThis-property-bts', async ({ page }, { title }) => {
+      await goto(page, title);
+      await wait(100);
+      await expect(page.locator('#target')).toHaveCSS('color', 'rgb(0, 0, 0)');
+    });
+    test('basic-globalThis-property-mts', async ({ page }, { title }) => {
+      await goto(page, title);
+      await wait(100);
+      await expect(page.locator('#target')).toHaveCSS('color', 'rgb(0, 0, 0)');
+    });
   });
   test.describe('apis', () => {
     test('api-custom-template-loader', async ({ page }, { title }) => {
@@ -551,6 +562,15 @@ test.describe('reactlynx3 tests', () => {
       ); // green;
     });
 
+    test('api-inject-style-rules', async ({ page }, { title }) => {
+      await goto(page, title);
+      const target = page.locator('#target');
+      await expect(target).toHaveCSS(
+        'background-color',
+        'rgb(0, 128, 0)',
+      ); // green;
+    });
+
     test('api-updateData-callback', async ({ page }, { title }) => {
       let successCallback = false;
       await page.on('console', async (message) => {
@@ -669,6 +689,22 @@ test.describe('reactlynx3 tests', () => {
       await goto(page, 'api-setSharedData', 'api-getSharedData');
       await wait(100);
       expect(page.workers().length).toBeLessThanOrEqual(4);
+    });
+
+    test('api-shared-context-worker-count-release', async ({ page }) => {
+      await goto(page, 'api-setSharedData', 'api-getSharedData');
+      await wait(100);
+      expect(page.workers().length).toBeLessThanOrEqual(4);
+      await page.evaluate(() =>
+        document.body.querySelector('lynx-view')?.remove()
+      );
+      await wait(100);
+      expect(page.workers().length).toBeLessThanOrEqual(3);
+      await page.evaluate(() =>
+        document.body.querySelector('lynx-view')?.remove()
+      );
+      await wait(100);
+      expect(page.workers().length).toBeLessThanOrEqual(1);
     });
 
     test.describe('api-exposure', () => {
@@ -926,13 +962,14 @@ test.describe('reactlynx3 tests', () => {
     });
     test('api-sendGlobalEvent', async ({ page }, { title }) => {
       await goto(page, title);
+      await wait(100);
       const target = page.locator('#target');
       await expect(target).toHaveCSS('background-color', 'rgb(255, 192, 203)'); // pink
       await page.evaluate(() => {
         // @ts-expect-error
         globalThis.lynxView.sendGlobalEvent('event-test', ['change']);
       });
-      await wait(100);
+      await wait(200);
       await expect(target).toHaveCSS(
         'background-color',
         'rgb(0, 128, 0)',
@@ -956,6 +993,15 @@ test.describe('reactlynx3 tests', () => {
       await wait(100);
       await expect(result).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
     });
+    test(
+      'api-queueMicrotask',
+      async ({ page }, { title }) => {
+        await goto(page, title);
+        await wait(200);
+        const target = page.locator('#target');
+        await expect(target).toHaveCSS('background-color', 'rgb(0, 128, 0)'); // green
+      },
+    );
   });
 
   test.describe('configs', () => {
@@ -2074,6 +2120,7 @@ test.describe('reactlynx3 tests', () => {
         async ({ page, browserName }, { title }) => {
           test.skip(browserName === 'firefox', 'flaky');
           await goto(page, title);
+          await wait(100);
           await page.locator('.focus').click({ force: true });
           await wait(100);
           const result = await page.locator('.result').first().innerText();
@@ -2085,6 +2132,7 @@ test.describe('reactlynx3 tests', () => {
       // input/bindfocus test-case start
       test('basic-element-x-input-bindfocus', async ({ page }, { title }) => {
         await goto(page, title);
+        await wait(100);
         await page.locator('input').click({ force: true });
         await wait(100);
         const result = await page.locator('.result').first().innerText();
@@ -2095,6 +2143,7 @@ test.describe('reactlynx3 tests', () => {
       // input/bindconfirm test-case start
       test('basic-element-x-input-bindconfirm', async ({ page }, { title }) => {
         await goto(page, title);
+        await wait(100);
         await page.locator('input').press('Enter');
         await wait(100);
         const result = await page.locator('.result').first().innerText();

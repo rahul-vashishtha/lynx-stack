@@ -1,21 +1,28 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
+
+/**
+ * Implements the reload (thinking of "refresh" in browser) for both main thread
+ * and background thread.
+ */
+
 import { render } from 'preact';
 
 import { hydrate } from '../hydrate.js';
 import { LifecycleConstant } from '../lifecycleConstant.js';
 import { __pendingListUpdates } from '../list.js';
 import { __root, setRoot } from '../root.js';
-import { takeGlobalRefPatchMap } from '../snapshot/ref.js';
 import { SnapshotInstance, __page, snapshotInstanceManager } from '../snapshot.js';
+import { takeGlobalRefPatchMap } from '../snapshot/ref.js';
 import { isEmptyObject } from '../utils.js';
-import { destroyBackground } from './destroy.js';
 import { destroyWorklet } from '../worklet/destroy.js';
+import { destroyBackground } from './destroy.js';
 import { clearJSReadyEventIdSwap, isJSReady } from './event/jsReady.js';
 import { increaseReloadVersion } from './pass.js';
 import { deinitGlobalSnapshotPatch } from './patch/snapshotPatch.js';
 import { renderMainThread } from './render.js';
+import { setMainThreadHydrationFinished } from './patch/isMainThreadHydrationFinished.js';
 
 function reloadMainThread(data: any, options: UpdatePageOption): void {
   if (__PROFILE__) {
@@ -32,6 +39,7 @@ function reloadMainThread(data: any, options: UpdatePageOption): void {
   snapshotInstanceManager.clear();
   __pendingListUpdates.clear();
   clearJSReadyEventIdSwap();
+  setMainThreadHydrationFinished(false);
 
   const oldRoot = __root;
   setRoot(new SnapshotInstance('root'));

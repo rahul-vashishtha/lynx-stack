@@ -418,6 +418,13 @@ describe('Config - toRsBuildConfig', () => {
   })
 
   describe('Performance', () => {
+    test('transform performance.profile', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        performance: { profile: true },
+      })
+      expect(rsbuildConfig.performance?.profile).toBe(true)
+    })
+
     test('transform performance.removeConsole true', () => {
       const rsbuildConfig = toRsbuildConfig({
         performance: { removeConsole: true },
@@ -795,6 +802,35 @@ describe('Config - toRsBuildConfig', () => {
           "not": /\\\\\\.json5\\$/,
         }
       `)
+    })
+
+    test('source.preEntry string', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        source: {
+          preEntry: './src/polyfill.ts',
+        },
+      })
+
+      expect(rsbuildConfig.source?.preEntry).toMatchInlineSnapshot(
+        `"./src/polyfill.ts"`,
+      )
+    })
+
+    test('source.preEntry string[]', () => {
+      const rsbuildConfig = toRsbuildConfig({
+        source: {
+          preEntry: ['./src/polyfill-a.ts', './src/polyfill-b.ts'],
+        },
+      })
+
+      expect(rsbuildConfig.source?.preEntry).toMatchInlineSnapshot(
+        `
+        [
+          "./src/polyfill-a.ts",
+          "./src/polyfill-b.ts",
+        ]
+      `,
+      )
     })
   })
 })

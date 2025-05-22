@@ -8,14 +8,25 @@ import type { Filename } from './output/filename.js'
 import type { Config } from './index.js'
 
 export function applyDefaultRspeedyConfig(config: Config): Config {
-  const ret = mergeRsbuildConfig(config, {
+  const ret = mergeRsbuildConfig({
     output: {
       // We are applying the default filename to the config
       // since some plugin(e.g.: `@lynx-js/qrcode-rsbuild-plugin`) will read
       // from the `output.filename.bundle` field.
       filename: getFilename(config.output?.filename),
+
+      // inlineScripts should be enabled by default
+      inlineScripts: true,
     },
-  })
+
+    tools: {
+      rsdoctor: {
+        experiments: {
+          enableNativePlugin: true,
+        },
+      },
+    },
+  }, config)
 
   return ret
 }

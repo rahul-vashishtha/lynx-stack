@@ -1,16 +1,26 @@
 // Copyright 2024 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import { SnapshotInstance } from '../snapshot.js';
-import { updateEvent } from './event.js';
+
+/**
+ * Handles JSX spread operator in the snapshot system.
+ *
+ * Spread operators in JSX (e.g., <div {...props}>) are transformed into
+ * optimized attribute updates at compile time, avoiding runtime object spreads.
+ */
+
+import type { Worklet } from '@lynx-js/react/worklet-runtime/bindings';
+
 import { BackgroundSnapshotInstance } from '../backgroundSnapshot.js';
+import { ListUpdateInfoRecording, __pendingListUpdates } from '../list.js';
+import { SnapshotInstance } from '../snapshot.js';
+import { isDirectOrDeepEqual, isEmptyObject, pick } from '../utils.js';
+import { updateEvent } from './event.js';
+import { updateGesture } from './gesture.js';
+import { platformInfoAttributes, updateListItemPlatformInfo } from './platformInfo.js';
 import { transformRef, updateRef } from './ref.js';
 import { updateWorkletEvent } from './workletEvent.js';
 import { updateWorkletRef } from './workletRef.js';
-import { updateGesture } from './gesture.js';
-import { platformInfoAttributes, updateListItemPlatformInfo } from './platformInfo.js';
-import { isDirectOrDeepEqual, isEmptyObject, pick } from '../utils.js';
-import { __pendingListUpdates, ListUpdateInfoRecording } from '../list.js';
 
 const eventRegExp = /^(([A-Za-z-]*):)?(bind|catch|capture-bind|capture-catch|global-bind)([A-Za-z]+)$/;
 const eventTypeMap: Record<string, string> = {
@@ -29,7 +39,7 @@ const noFlattenAttributes = /* @__PURE__ */ new Set<string>([
 ]);
 
 function updateSpread(snapshot: SnapshotInstance, index: number, oldValue: any, elementIndex: number): void {
-  oldValue ||= {};
+  oldValue ??= {};
   let newValue: Record<string, any> = snapshot.__values![index]; // compiler guarantee this must be an object;
 
   // @ts-ignore
@@ -124,7 +134,7 @@ function updateSpread(snapshot: SnapshotInstance, index: number, oldValue: any, 
           __elements: snapshot.__elements,
         } as SnapshotInstance;
         updateGesture(fakeSnapshot, index, oldValue[key], elementIndex, workletType);
-      } else if ((match = key.match(eventRegExp))) {
+      } else if ((match = eventRegExp.exec(key))) {
         const workletType = match[2];
         const eventType = eventTypeMap[match[3]!]!;
         const eventName = match[4]!;
@@ -142,7 +152,15 @@ function updateSpread(snapshot: SnapshotInstance, index: number, oldValue: any, 
           __elements: snapshot.__elements,
         } as SnapshotInstance;
         if (workletType) {
-          updateWorkletEvent(fakeSnapshot, index, oldValue[key], elementIndex, workletType, eventType, eventName);
+          updateWorkletEvent(
+            fakeSnapshot,
+            index,
+            oldValue[key] as Worklet,
+            elementIndex,
+            workletType,
+            eventType,
+            eventName,
+          );
         } else {
           updateEvent(fakeSnapshot, index, oldValue[key], elementIndex, eventType, eventName, key);
         }
@@ -212,7 +230,7 @@ function updateSpread(snapshot: SnapshotInstance, index: number, oldValue: any, 
           __elements: snapshot.__elements,
         } as SnapshotInstance;
         updateGesture(fakeSnapshot, index, oldValue[key], elementIndex, workletType);
-      } else if ((match = key.match(eventRegExp))) {
+      } else if ((match = eventRegExp.exec(key))) {
         const workletType = match[2];
         const eventType = eventTypeMap[match[3]!]!;
         const eventName = match[4]!;
@@ -284,4 +302,4 @@ function transformSpread(
   return result;
 }
 
-export { updateSpread, transformSpread };
+export { transformSpread, updateSpread };

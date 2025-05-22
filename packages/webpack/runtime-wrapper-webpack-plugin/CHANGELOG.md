@@ -1,5 +1,19 @@
 # @lynx-js/runtime-wrapper-webpack-plugin
 
+## 0.1.0
+
+### Minor Changes
+
+- Add parameter forwarding for Browser Object Model (BOM) APIs. ([#787](https://github.com/lynx-family/lynx-stack/pull/787))
+
+  This allows direct access to APIs like `fetch`, `requestAnimationFrame`.
+
+## 0.0.10
+
+### Patch Changes
+
+- feat: add `experimental_isLazyBundle` option, it will disable lynxChunkEntries for standalone lazy bundle ([#653](https://github.com/lynx-family/lynx-stack/pull/653))
+
 ## 0.0.9
 
 ### Patch Changes

@@ -1,5 +1,83 @@
 # @lynx-js/rspeedy
 
+## 0.9.5
+
+### Patch Changes
+
+- Support `source.preEntry`. ([#750](https://github.com/lynx-family/lynx-stack/pull/750))
+
+  Add a script before the entry file of each page. This script will be executed before the page code.
+  It can be used to execute global logics, such as injecting polyfills, setting global styles, etc.
+
+  example：
+
+  ```js
+  import { defineConfig } from '@lynx-js/rspeedy'
+  export default defineConfig({
+    source: {
+      preEntry: './src/polyfill.ts',
+    },
+  })
+  ```
+
+- Bump Rsbuild v1.3.20 with Rspack v1.3.10. ([#799](https://github.com/lynx-family/lynx-stack/pull/799))
+
+- Add `callerName` option to `createRspeedy`. ([#757](https://github.com/lynx-family/lynx-stack/pull/757))
+
+  It can be accessed by Rsbuild plugins through [`api.context.callerName`](https://rsbuild.dev/api/javascript-api/instance#contextcallername), and execute different logic based on this identifier.
+
+  ```js
+  export const myPlugin = {
+    name: 'my-plugin',
+    setup(api) {
+      const { callerName } = api.context
+
+      if (callerName === 'rslib') {
+        // ...
+      } else if (callerName === 'rspeedy') {
+        // ...
+      }
+    },
+  }
+  ```
+
+- Support `performance.buildCache`. ([#766](https://github.com/lynx-family/lynx-stack/pull/766))
+
+- Updated dependencies [[`fbc4fbb`](https://github.com/lynx-family/lynx-stack/commit/fbc4fbbdb572ad7128a33dc06e8d8a026d18e388)]:
+  - @lynx-js/webpack-dev-transport@0.1.3
+
+## 0.9.4
+
+### Patch Changes
+
+- Bump Rsbuild v1.3.17 with Rspack v1.3.9. ([#708](https://github.com/lynx-family/lynx-stack/pull/708))
+
+- Support `performance.profile`. ([#691](https://github.com/lynx-family/lynx-stack/pull/691))
+
+- Support CLI flag `--mode` to specify the build mode. ([#723](https://github.com/lynx-family/lynx-stack/pull/723))
+
+- Enable native Rsdoctor plugin by default. ([#688](https://github.com/lynx-family/lynx-stack/pull/688))
+
+  Set `tools.rsdoctor.experiments.enableNativePlugin` to `false` to use the old JS plugin.
+
+  ```js
+  import { defineConfig } from '@lynx-js/rspeedy'
+
+  export default defineConfig({
+    tools: {
+      rsdoctor: {
+        experiments: {
+          enableNativePlugin: false,
+        },
+      },
+    },
+  })
+  ```
+
+  See [Rsdoctor - 1.0](https://rsdoctor.dev/blog/release/release-note-1_0#-faster-analysis) for more details.
+
+- Bump Rsbuild v1.3.14 with Rspack v1.3.8. ([#630](https://github.com/lynx-family/lynx-stack/pull/630))
+
 ## 0.9.3
 
 ### Patch Changes
@@ -10,7 +88,7 @@
 
 ### Patch Changes
 
-- Support cli option `--no-env` to disable loading of .env files ([#483](https://github.com/lynx-family/lynx-stack/pull/483))
+- Support CLI option `--no-env` to disable loading of `.env` files ([#483](https://github.com/lynx-family/lynx-stack/pull/483))
 
 - Bump Rsbuild v1.3.8 with Rspack v1.3.5. ([#579](https://github.com/lynx-family/lynx-stack/pull/579))
 
@@ -46,9 +124,9 @@
 
 ### Patch Changes
 
-- Support cli flag `--base` to specify the base path of the server. ([#387](https://github.com/lynx-family/lynx-stack/pull/387))
+- Support CLI flag `--base` to specify the base path of the server. ([#387](https://github.com/lynx-family/lynx-stack/pull/387))
 
-- Support cli option `--environment` to specify the name of environment to build ([#462](https://github.com/lynx-family/lynx-stack/pull/462))
+- Support CLI flag `--environment` to specify the name of environment to build ([#462](https://github.com/lynx-family/lynx-stack/pull/462))
 
 - Select the most appropriate network interface. ([#457](https://github.com/lynx-family/lynx-stack/pull/457))
 
@@ -58,7 +136,7 @@
 
   See [Node.js - TypeScript](https://nodejs.org/api/typescript.html) for more details.
 
-- Support cli option `--env-mode` to specify the env mode to load the `.env.[mode]` file. ([#453](https://github.com/lynx-family/lynx-stack/pull/453))
+- Support CLI flag `--env-mode` to specify the env mode to load the `.env.[mode]` file. ([#453](https://github.com/lynx-family/lynx-stack/pull/453))
 
 - Support `dev.hmr` and `dev.liveReload`. ([#458](https://github.com/lynx-family/lynx-stack/pull/458))
 

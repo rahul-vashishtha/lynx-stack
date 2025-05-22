@@ -10,10 +10,15 @@
   "fixed": [
     [
       "@lynx-js/web-core",
+      "@lynx-js/web-core-server",
       "@lynx-js/web-constants",
       "@lynx-js/web-mainthread-apis",
       "@lynx-js/web-worker-rpc",
       "@lynx-js/web-worker-runtime"
+    ],
+    [
+      "@lynx-js/web-elements",
+      "@lynx-js/web-elements-template"
     ],
     [
       "@lynx-js/react-rsbuild-plugin",
@@ -35,7 +40,6 @@
   },
   "ignore": [
     "@lynx-js/web-tests",
-    "@lynx-js/eco-ci",
     "@lynx-js/example-react"
   ],
   "changedFilePatterns": [

@@ -68,6 +68,8 @@ export function toRsbuildConfig(
 
       include: config.source?.include,
 
+      preEntry: config.source?.preEntry,
+
       transformImport: config.source?.transformImport,
 
       tsconfigPath: config.source?.tsconfigPath,
@@ -85,7 +87,11 @@ export function toRsbuildConfig(
     },
     plugins: config.plugins,
     performance: {
+      buildCache: config.performance?.buildCache,
+
       chunkSplit: config.performance?.chunkSplit,
+
+      profile: config.performance?.profile,
 
       removeConsole: toRsbuildRemoveConsole(config) as
         | ConsoleType[]

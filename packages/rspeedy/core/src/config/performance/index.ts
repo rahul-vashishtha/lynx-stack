@@ -3,12 +3,12 @@
 // LICENSE file in the root directory of this source tree.
 import type { PerformanceConfig } from '@rsbuild/core'
 
+import type { BuildCache } from './build-cache.js'
 import type {
   ChunkSplit,
   ChunkSplitBySize,
   ChunkSplitCustom,
 } from './chunk-split.js'
-
 /**
  * The type of the console method.
  *
@@ -33,9 +33,74 @@ export type ConsoleType =
  */
 export interface Performance {
   /**
+   * Enable or configure persistent build cache.
+   *
+   * @beta This feature is experimental and may be changed in the future.
+   *
+   * @example
+   *
+   * Enable persistent build cache.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   *
+   * export default defineConfig({
+   *   performance: {
+   *     buildCache: true,
+   *   },
+   * })
+   * ```
+   *
+   * @example
+   *
+   * Customize build cache.
+   *
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   *
+   * export default defineConfig({
+   *   performance: {
+   *     buildCache: {
+   *       cacheDigest: [process.env.SOME_ENV],
+   *       buildDependencies: ['postcss.config.js'],
+   *     },
+   *   },
+   * })
+   * ```
+   */
+  buildCache?: BuildCache | boolean | undefined
+
+  /**
    * {@link Performance.chunkSplit} is used to configure the chunk splitting strategy.
    */
   chunkSplit?: ChunkSplit | ChunkSplitBySize | ChunkSplitCustom | undefined
+
+  /**
+   * Whether capture timing information in the build time and the runtime, the same as the {@link https://rspack.dev/config/other-options#profile | profile} config of Rspack.
+   *
+   * @remarks
+   *
+   * This option would be `true` when `DEBUG` environment variable contains `rspeedy`.
+   *
+   * @example
+   *
+   * Enable profile.
+   *
+   * - Rsbuild will auto-generate `dist/stats.json` file through bundle analyzer.
+   *
+   * - Rspack will include the build time information when generating `stats.json`.
+   *
+   * - Frameworks like ReactLynx will include runtime information using `console.profile`.
+   *
+   * ```ts
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   *
+   * export default defineConfig({
+   *   performance: { profile: true },
+   * })
+   * ```
+   */
+  profile?: boolean | undefined
 
   /**
    * Whether to remove `console.[methodName]` in production build.

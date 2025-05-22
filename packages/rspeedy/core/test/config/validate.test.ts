@@ -833,6 +833,8 @@ describe('Config Validation', () => {
         { distPath: { image: 'image' } },
         { distPath: { font: 'font' } },
         { distPath: { svg: 'svg' } },
+        { inlineScripts: true },
+        { inlineScripts: false },
         { legalComments: 'inline' },
         { legalComments: 'none' },
         { legalComments: 'linked' },
@@ -1097,6 +1099,16 @@ describe('Config Validation', () => {
           ]
         `)
 
+      expect(() => validate({ output: { inlineScripts: null } }))
+        .toThrowErrorMatchingInlineSnapshot(`
+          [Error: Invalid configuration.
+
+          Invalid config on \`$input.output.inlineScripts\`.
+            - Expect to be (boolean | undefined)
+            - Got: null
+          ]
+        `)
+
       expect(() => validate({ output: { legalComments: [null] } }))
         .toThrowErrorMatchingInlineSnapshot(`
           [Error: Invalid configuration.
@@ -1133,6 +1145,28 @@ describe('Config Validation', () => {
     test('valid type', () => {
       const cases: Performance[] = [
         {},
+        { buildCache: true },
+        { buildCache: false },
+        {
+          buildCache: {
+            cacheDigest: [process.env['SOME_ENV'], undefined],
+          },
+        },
+        {
+          buildCache: {
+            buildDependencies: ['foo.txt'],
+          },
+        },
+        {
+          buildCache: {
+            buildDependencies: ['foo.txt', 'bar.txt'],
+          },
+        },
+        {
+          buildCache: {
+            cacheDirectory: 'foo/.cache',
+          },
+        },
         {
           chunkSplit: undefined,
         },
@@ -1284,6 +1318,8 @@ describe('Config Validation', () => {
             },
           },
         },
+        { profile: true },
+        { profile: false },
         {
           removeConsole: true,
         },
@@ -1347,6 +1383,72 @@ describe('Config Validation', () => {
     })
 
     test('invalid type', () => {
+      expect(() =>
+        validate({
+          performance: {
+            buildCache: null,
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.performance.buildCache\`.
+          - Expect to be (BuildCache | boolean | undefined)
+          - Got: null
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          performance: {
+            buildCache: {
+              cacheDigest: null,
+            },
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.performance.buildCache.cacheDigest\`.
+          - Expect to be (Array<string | undefined> | undefined)
+          - Got: null
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          performance: {
+            buildCache: {
+              cacheDigest: [123],
+            },
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.performance.buildCache.cacheDigest[0]\`.
+          - Expect to be (string | undefined)
+          - Got: number
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          performance: {
+            buildCache: {
+              cacheDirectory: null,
+            },
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.performance.buildCache.cacheDirectory\`.
+          - Expect to be (string | undefined)
+          - Got: null
+        ]
+      `)
+
       expect(() =>
         validate({
           performance: {
@@ -1484,6 +1586,21 @@ describe('Config Validation', () => {
         [Error: Invalid configuration.
 
         Unknown property: \`$input.performance.chunkSplit.override\` in configuration
+        ]
+      `)
+
+      expect(() =>
+        validate({
+          performance: {
+            profile: 'ALL',
+          },
+        })
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [Error: Invalid configuration.
+
+        Invalid config on \`$input.performance.profile\`.
+          - Expect to be (boolean | undefined)
+          - Got: string
         ]
       `)
 
@@ -1805,6 +1922,23 @@ describe('Config Validation', () => {
     test('valid type', () => {
       const cases: Source[] = [
         {},
+        {
+          assetsInclude: 'json5',
+        },
+        {
+          assetsInclude: /\.json5$/,
+        },
+        {
+          assetsInclude: [/\.json5$/, /\.pdf$/],
+        },
+        {
+          assetsInclude: (value: string) => value.endsWith('.json5'),
+        },
+        {
+          assetsInclude: {
+            not: /\.json5$/,
+          },
+        },
         { decorators: {} },
         { decorators: { version: '2022-03' } },
         { decorators: { version: 'legacy' } },
@@ -1862,6 +1996,12 @@ describe('Config Validation', () => {
             { not: /core-js/ },
           ],
         },
+        {
+          preEntry: './src/polyfill.ts',
+        },
+        {
+          preEntry: ['./src/polyfill-a.ts', './src/polyfill-b.ts'],
+        },
         { transformImport: [] },
         {
           transformImport: [
@@ -1885,23 +2025,6 @@ describe('Config Validation', () => {
               transformToDefaultImport: true,
             },
           ],
-        },
-        {
-          assetsInclude: 'json5',
-        },
-        {
-          assetsInclude: /\.json5$/,
-        },
-        {
-          assetsInclude: [/\.json5$/, /\.pdf$/],
-        },
-        {
-          assetsInclude: (value: string) => value.endsWith('.json5'),
-        },
-        {
-          assetsInclude: {
-            not: /\.json5$/,
-          },
         },
       ]
 
@@ -2112,6 +2235,16 @@ describe('Config Validation', () => {
           Invalid config on \`$input.source.include[0].and\`.
             - Expect to be (RuleSetConditions | undefined)
             - Got: object
+          ]
+        `)
+
+      expect(() => validate({ source: { preEntry: true } }))
+        .toThrowErrorMatchingInlineSnapshot(`
+          [Error: Invalid configuration.
+
+          Invalid config on \`$input.source.preEntry\`.
+            - Expect to be (Array<string> | string | undefined)
+            - Got: boolean
           ]
         `)
 

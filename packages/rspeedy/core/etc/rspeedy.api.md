@@ -20,6 +20,13 @@ import { rspack } from '@rsbuild/core';
 import type { ToolsConfig } from '@rsbuild/core';
 import type { WatchFiles } from '@rsbuild/core';
 
+// @beta
+export interface BuildCache {
+    buildDependencies?: string[] | undefined;
+    cacheDigest?: Array<string | undefined> | undefined;
+    cacheDirectory?: string | undefined;
+}
+
 // @public
 export interface ChunkSplit {
     override?: Rspack.Configuration extends {
@@ -71,10 +78,11 @@ export interface Config {
 export type ConsoleType = 'log' | 'warn' | 'error' | 'info' | 'debug' | 'profile' | 'profileEnd' | (string & Record<never, never>);
 
 // @public
-export function createRspeedy({ cwd, rspeedyConfig, loadEnv, environment }: CreateRspeedyOptions): Promise<RspeedyInstance>;
+export function createRspeedy({ cwd, rspeedyConfig, loadEnv, environment, callerName, }: CreateRspeedyOptions): Promise<RspeedyInstance>;
 
 // @public
 export interface CreateRspeedyOptions {
+    callerName?: string;
     cwd?: string;
     environment?: CreateRsbuildOptions['environment'];
     loadEnv?: CreateRsbuildOptions['loadEnv'];
@@ -224,6 +232,7 @@ export interface Output {
     distPath?: DistPath | undefined;
     filename?: string | Filename | undefined;
     filenameHash?: boolean | string | undefined;
+    inlineScripts?: boolean | undefined;
     legalComments?: 'none' | 'inline' | 'linked' | undefined;
     minify?: Minify | boolean | undefined;
     sourceMap?: boolean | SourceMap | undefined;
@@ -231,8 +240,11 @@ export interface Output {
 
 // @public
 export interface Performance {
+    // @beta
+    buildCache?: BuildCache | boolean | undefined;
     chunkSplit?: ChunkSplit | ChunkSplitBySize | ChunkSplitCustom | undefined;
     printFileSize?: PerformanceConfig['printFileSize'] | undefined;
+    profile?: boolean | undefined;
     removeConsole?: boolean | ConsoleType[] | undefined;
 }
 
@@ -279,6 +291,7 @@ export interface Source {
     entry?: Entry | undefined;
     exclude?: Rspack.RuleSetCondition[] | undefined;
     include?: Rspack.RuleSetCondition[] | undefined;
+    preEntry?: string | string[] | undefined;
     transformImport?: TransformImport[] | undefined;
     tsconfigPath?: string | undefined;
 }

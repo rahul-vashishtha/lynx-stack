@@ -300,6 +300,32 @@ export interface Output {
   filenameHash?: boolean | string | undefined
 
   /**
+   * The {@link Output.inlineScripts} option controls whether to inline scripts into Lynx bundle (`.lynx.bundle`).
+   *
+   * @remarks
+   *
+   * If no value is provided, the default value would be `true`.
+   *
+   * This is different with {@link https://rsbuild.dev/config/output/inline-scripts | output.inlineScripts } since we normally want to inline scripts in Lynx bundle (`.lynx.bundle`).
+   *
+   * Only background thread scripts can remain non-inlined, whereas the main thread script is always inlined.
+   *
+   * @example
+   *
+   * Disable inlining background thread scripts.
+   * ```js
+   * import { defineConfig } from '@lynx-js/rspeedy'
+   *
+   * export default defineConfig({
+   *   output: {
+   *     inlineScripts: false,
+   *   },
+   * })
+   * ```
+   */
+  inlineScripts?: boolean | undefined
+
+  /**
    * The {@link Output.legalComments} controls how to handle the legal comment.
    *
    * @remarks

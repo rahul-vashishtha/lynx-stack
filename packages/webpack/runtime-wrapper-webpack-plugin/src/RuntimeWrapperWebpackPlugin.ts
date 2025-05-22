@@ -59,7 +59,33 @@ const defaultInjectVars = [
   'Behavior',
   'LynxJSBI',
   'lynx',
+
+  // BOM API
   'window',
+  'document',
+  'frames',
+  'self',
+  'location',
+  'navigator',
+  'localStorage',
+  'history',
+  'Caches',
+  'screen',
+  'alert',
+  'confirm',
+  'prompt',
+  'fetch',
+  'XMLHttpRequest',
+  '__WebSocket__', // We would provide `WebSocket` using `ProvidePlugin`
+  'webkit',
+  'Reporter',
+  'print',
+  '__Function__', // We should allow using `Function`
+  'global',
+
+  // Lynx API
+  'requestAnimationFrame',
+  'cancelAnimationFrame',
 ];
 
 /**
@@ -242,7 +268,9 @@ lynx.targetSdkVersion=lynx.targetSdkVersion||${
       JSON.stringify(targetSdkVersion)
     };
 ${overrideRuntimePromise ? `var Promise = lynx.Promise;` : ''}
-var fetch = lynx.fetch;
+fetch = fetch || lynx.fetch;
+requestAnimationFrame = requestAnimationFrame || lynx.requestAnimationFrame;
+cancelAnimationFrame = cancelAnimationFrame || lynx.cancelAnimationFrame;
 `
   );
 };

@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 import type { Chunk, Compilation, Compiler } from '@rspack/core';
 import invariant from 'tiny-invariant';
 
+import type { ExtractStrConfig } from '@lynx-js/react/transform';
 import { LynxTemplatePlugin } from '@lynx-js/template-webpack-plugin';
 import { RuntimeGlobals } from '@lynx-js/webpack-runtime-globals';
 
@@ -16,23 +17,6 @@ import { createLynxProcessEvalResultRuntimeModule } from './LynxProcessEvalResul
 
 const require = createRequire(import.meta.url);
 
-/**
- * The options for extractStr.
- *
- * @public
- */
-export interface ExtractStrConfig {
-  /**
-   * The minimum length of string literals to be extracted.
-   *
-   * @defaultValue `20`
-   *
-   * @public
-   */
-  strLength: number;
-  /** @internal */
-  extractedStrArr?: string[];
-}
 /**
  * The options for ReactWebpackPlugin
  *
@@ -73,6 +57,13 @@ interface ReactWebpackPluginOptions {
    * @alpha
    */
   experimental_isLazyBundle?: boolean;
+
+  /**
+   * Whether to enable profile.
+   *
+   * @defaultValue `false` when production, `true` when development
+   */
+  profile?: boolean | undefined;
 }
 
 /**
@@ -145,6 +136,7 @@ class ReactWebpackPlugin {
       mainThreadChunks: [],
       extractStr: false,
       experimental_isLazyBundle: false,
+      profile: undefined,
     });
 
   /**
@@ -180,7 +172,9 @@ class ReactWebpackPlugin {
       // We enable profile by default in development.
       // It can also be disabled by environment variable `REACT_PROFILE=false`
       __PROFILE__: JSON.stringify(
-        process.env['REACT_PROFILE'] ?? compiler.options.mode === 'development',
+        options.profile
+          ?? process.env['REACT_PROFILE']
+          ?? compiler.options.mode === 'development',
       ),
       __EXTRACT_STR__: JSON.stringify(Boolean(options.extractStr)),
       __FIRST_SCREEN_SYNC_TIMING__: JSON.stringify(

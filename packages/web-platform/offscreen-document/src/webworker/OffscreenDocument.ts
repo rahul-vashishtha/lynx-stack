@@ -5,7 +5,12 @@ import {
   OperationType,
   type ElementOperation,
 } from '../types/ElementOperation.js';
-import { OffscreenElement } from './OffscreenElement.js';
+import { styleMapSymbol } from './OffscreenCSSStyleDeclaration.js';
+import {
+  _attributes,
+  innerHTML,
+  OffscreenElement,
+} from './OffscreenElement.js';
 import {
   eventPhase,
   OffscreenEvent,
@@ -131,4 +136,82 @@ export class OffscreenDocument extends OffscreenNode {
       }
     }
   };
+  /**
+   * Converts the OffscreenDocument instance to a JSON string.
+   * Currently, this method returns an empty string as a placeholder.
+   * This behavior may be updated in the future to provide a meaningful
+   * JSON representation of the OffscreenDocument.
+   *
+   * @returns {string} An empty string.
+   */
+  toJSON(): string {
+    return '';
+  }
+}
+
+type ShadowrootTemplates =
+  | ((
+    attributes: Record<string, string>,
+  ) => string)
+  | string;
+
+function getInnerHTMLImpl(
+  buffer: string[],
+  element: OffscreenElement,
+  shadowrootTemplates: Record<string, ShadowrootTemplates>,
+): void {
+  let tagName = element.tagName.toLowerCase();
+  buffer.push('<');
+  buffer.push(tagName);
+  for (const [key, value] of Object.entries(element[_attributes])) {
+    buffer.push(' ');
+    buffer.push(key);
+    buffer.push('="');
+    buffer.push(value);
+    buffer.push('"');
+  }
+
+  const cssText = Array.from(element.style[styleMapSymbol].entries())
+    .map(([key, value]) => `${key}: ${value};`).join('');
+  if (cssText) {
+    buffer.push(' style="', cssText, '"');
+  }
+
+  buffer.push('>');
+  const templateImpl = shadowrootTemplates[tagName];
+  if (templateImpl) {
+    const template = typeof templateImpl === 'function'
+      ? templateImpl(element[_attributes])
+      : templateImpl;
+    buffer.push('<template shadowrootmode="open">', template, '</template>');
+  }
+  if (element[innerHTML]) {
+    buffer.push(element[innerHTML]);
+  } else {
+    for (const child of element.children) {
+      getInnerHTMLImpl(
+        buffer,
+        child as OffscreenElement,
+        shadowrootTemplates,
+      );
+    }
+  }
+  buffer.push('</');
+  buffer.push(tagName);
+  buffer.push('>');
+}
+
+export function dumpHTMLString(
+  element: OffscreenDocument,
+  shadowrootTemplates: Record<string, ShadowrootTemplates>,
+): string {
+  const buffer: string[] = [];
+  for (const child of element.children) {
+    getInnerHTMLImpl(
+      buffer,
+      child as OffscreenElement,
+      shadowrootTemplates,
+    );
+  }
+  return buffer.join('');
 }

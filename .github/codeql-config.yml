@@ -1,0 +1,6 @@
+paths-ignore:
+  - "**/diagnostic"
+  - "**/hotCases"
+  - "**/node_modules"
+  - "packages/rspeedy/core/test/**"
+  - "packages/webpack/test-tools/update.js"
