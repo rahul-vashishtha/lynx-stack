@@ -14,8 +14,8 @@
     "email": "colinwang.0616@gmail.com"
   },
   "type": "module",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "setup.ts",
+  "types": "setup.ts",
   "devDependencies": {
     "path-serializer": "^0.4.0",
     "vitest": "^3.1.4",
