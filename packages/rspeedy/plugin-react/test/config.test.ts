@@ -276,7 +276,6 @@ describe('Config', () => {
         "enableRemoveCSSScope": true,
         "inlineSourcesContent": true,
         "isDynamicComponent": false,
-        "jsx": undefined,
       }
     `)
   })
@@ -303,7 +302,6 @@ describe('Config', () => {
         "enableRemoveCSSScope": undefined,
         "inlineSourcesContent": true,
         "isDynamicComponent": false,
-        "jsx": undefined,
       }
     `)
 
@@ -411,6 +409,101 @@ describe('Config', () => {
         plugin && plugin.constructor.name === 'TestPlugin'
       ),
     ).toHaveLength(1)
+  })
+
+  describe('Output inlineScripts', () => {
+    test('defaults', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+    })
+
+    test('output.inlineScripts: false', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          output: {
+            inlineScripts: false,
+          },
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+    })
+
+    test('environments.lynx.output.inlineScripts: false', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRspeedy({
+        rspeedyConfig: {
+          environments: {
+            lynx: {
+              output: {
+                inlineScripts: false,
+              },
+            },
+          },
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: false })
+    })
+
+    test('legacy Rspeedy version (with `output.inlineScripts` defaults to `false`)', async () => {
+      const { pluginReactLynx } = await import('../src/pluginReactLynx.js')
+      const rsbuild = await createRsbuild({
+        rsbuildConfig: {
+          plugins: [
+            pluginReactLynx(),
+            pluginStubRspeedyAPI(),
+          ],
+          environments: {
+            lynx: {},
+          },
+        },
+      })
+
+      const [config] = await rsbuild.initConfigs()
+
+      const encodePlugin = config?.plugins?.find(p =>
+        p && p.constructor.name === 'LynxEncodePlugin'
+      )
+
+      expect(encodePlugin).toHaveProperty('options', { inlineScripts: true })
+    })
   })
 
   describe('Output Filename', () => {

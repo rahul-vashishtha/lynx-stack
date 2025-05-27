@@ -2,21 +2,28 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-/// <reference path="../types/elementApi.d.ts" />
-
-import type { ClosureValueType, Worklet, WorkletRefImpl } from './types.js';
+import type { ClosureValueType, JsFnHandle, Worklet, WorkletRefImpl } from './types.js';
 import type { Element } from '../api/element.js';
 
 /**
- * Register a worklet function to the `jsFunctionLifecycleManager`.
- * This function mast be called when a worklet context is updated.
+ * This function must be called when a worklet context is updated.
  *
  * @param worklet - The worklet to be updated
- * @param element - The element associated with the worklet
+ * @param oldWorklet - The old worklet context
+ * @param isFirstScreen - Whether it is before the hydration is finished
+ * @param element - The element
  * @internal
  */
-function onWorkletCtxUpdate(worklet: Worklet, element: ElementNode): void {
+function onWorkletCtxUpdate(
+  worklet: Worklet,
+  oldWorklet: Worklet | null | undefined,
+  isFirstScreen: boolean,
+  element: ElementNode,
+): void {
   globalThis.lynxWorkletImpl?._jsFunctionLifecycleManager?.addRef(worklet._execId!, worklet);
+  if (isFirstScreen && oldWorklet) {
+    globalThis.lynxWorkletImpl?._hydrateCtx(worklet, oldWorklet);
+  }
   globalThis.lynxWorkletImpl?._eventDelayImpl.runDelayedWorklet(worklet, element);
 }
 
@@ -52,12 +59,13 @@ function updateWorkletRefInitValueChanges(patch?: [number, unknown][]): void {
 }
 
 /**
- * Clear all delayed worklets to run.
+ * This must be called when the hydration is finished.
  *
  * @internal
  */
 function onHydrationFinished(): void {
-  globalThis.lynxWorkletImpl?._eventDelayImpl.clearDelayedWorklets();
+  globalThis.lynxWorkletImpl?._runOnBackgroundDelayImpl.runDelayedBackgroundFunctions();
+  globalThis.lynxWorkletImpl?._refImpl.clearFirstScreenWorkletRefMap();
 }
 
 /**
@@ -65,8 +73,17 @@ function onHydrationFinished(): void {
  *
  * @internal
  */
-function registerWorklet(type: string, id: string, worklet: (...args: any[]) => any): void {
+function registerWorklet(type: string, id: string, worklet: (...args: unknown[]) => unknown): void {
   globalThis.registerWorklet(type, id, worklet);
+}
+
+/**
+ * Delay a runOnBackground after hydration.
+ *
+ * @internal
+ */
+function delayRunOnBackground(fnObj: JsFnHandle, fn: (fnId: number, execId: number) => void): void {
+  globalThis.lynxWorkletImpl?._runOnBackgroundDelayImpl.delayRunOnBackground(fnObj, fn);
 }
 
 export {
@@ -76,4 +93,5 @@ export {
   updateWorkletRefInitValueChanges,
   onHydrationFinished,
   registerWorklet,
+  delayRunOnBackground,
 };

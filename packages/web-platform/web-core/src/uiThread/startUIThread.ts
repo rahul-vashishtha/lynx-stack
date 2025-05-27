@@ -7,9 +7,10 @@ import { bootWorkers } from './bootWorkers.js';
 import { createDispose } from './crossThreadHandlers/createDispose.js';
 import {
   type LynxTemplate,
-  type MainThreadStartConfigs,
+  type StartMainThreadContextConfig,
   type NapiModulesCall,
   type NativeModulesCall,
+  updateGlobalPropsEndpoint,
 } from '@lynx-js/web-constants';
 import { loadTemplate } from '../utils/loadTemplate.js';
 import { createUpdateData } from './crossThreadHandlers/createUpdateData.js';
@@ -26,7 +27,7 @@ export type StartUIThreadCallbacks = {
 
 export function startUIThread(
   templateUrl: string,
-  configs: Omit<MainThreadStartConfigs, 'template'>,
+  configs: Omit<StartMainThreadContextConfig, 'template'>,
   shadowRoot: ShadowRoot,
   lynxGroupId: number | undefined,
   threadStrategy: 'all-on-ui' | 'multi-thread',
@@ -80,5 +81,6 @@ export function startUIThread(
       terminateWorkers,
     ),
     sendGlobalEvent,
+    updateGlobalProps: backgroundRpc.createCall(updateGlobalPropsEndpoint),
   };
 }

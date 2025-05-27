@@ -45,8 +45,8 @@ function runDelayedWorklet(worklet: Worklet, element: ElementNode): void {
     }
     const leftParamsVec: ClosureValueType[][] = [];
     paramsVec.forEach((params) => {
-      // @ts-ignore
-      if (params[0]?.currentTarget?.elementRefptr === element) {
+      const firstParam = params[0] as { currentTarget?: { elementRefptr?: ElementNode } } | undefined;
+      if (firstParam?.currentTarget?.elementRefptr === element) {
         setTimeout(() => {
           profile('runDelayedWorklet', () => {
             runWorklet(worklet, params);

@@ -108,7 +108,7 @@ export interface TemplateHooks {
     debugInfo: string;
     template: Buffer;
     outputName: string;
-    lepus: Asset[];
+    mainThreadAssets: Asset[];
   }>;
 
   /**
@@ -284,15 +284,6 @@ export interface LynxTemplatePluginOptions {
   defaultOverflowVisible?: boolean;
 
   /**
-   * `encodeBinary` is used to specify the binary of the template encoder.
-   *
-   * @defaultValue `napi`
-   *
-   * @public
-   */
-  encodeBinary?: 'napi' | 'wasm';
-
-  /**
    * {@inheritdoc @lynx-js/react-rsbuild-plugin#PluginReactLynxOptions.experimental_isLazyBundle}
    *
    * @alpha
@@ -408,7 +399,6 @@ export class LynxTemplatePlugin {
       defaultOverflowVisible: true,
       removeDescendantSelectorScope: false,
       dsl: 'react_nodiff',
-      encodeBinary: 'napi',
 
       experimental_isLazyBundle: false,
       cssPlugins: [],
@@ -806,11 +796,11 @@ class LynxTemplatePluginImpl {
       },
       lepusCode: {
         // TODO: support multiple lepus chunks
-        root: assetsInfoByGroups.lepus[0],
+        root: assetsInfoByGroups.mainThread[0],
         chunks: [],
       },
       manifest: Object.fromEntries(
-        assetsInfoByGroups.js.map(asset => {
+        assetsInfoByGroups.backgroundThread.map(asset => {
           return [asset.name, asset.source.source().toString()];
         }),
       ),
@@ -906,7 +896,8 @@ class LynxTemplatePluginImpl {
         debugInfo,
         template: buffer,
         outputName: filename,
-        lepus: encodeData.lepusCode.chunks,
+        mainThreadAssets: [lepusCode.root, ...encodeData.lepusCode.chunks]
+          .filter(i => i !== undefined),
       });
 
       compilation.emitAsset(filename, new RawSource(template, false));
@@ -938,14 +929,14 @@ class LynxTemplatePluginImpl {
     excludedChunks: string[],
   ) {
     return chunks.filter((chunkName) => {
-      // Skip if the chunks should be filtered and the given chunk was not added explicity
+      // Skip if the chunks should be filtered and the given chunk was not added explicitly
       if (
         Array.isArray(includedChunks) && !includedChunks.includes(chunkName)
       ) {
         return false;
       }
 
-      // Skip if the chunks should be filtered and the given chunk was excluded explicity
+      // Skip if the chunks should be filtered and the given chunk was excluded explicitly
       if (excludedChunks.includes(chunkName)) {
         return false;
       }
@@ -988,11 +979,11 @@ class LynxTemplatePluginImpl {
   ): AssetsInformationByGroups {
     const assets: AssetsInformationByGroups = {
       // Will contain all js and mjs files
-      js: [],
+      backgroundThread: [],
       // Will contain all css files
       css: [],
       // Will contain all lepus files
-      lepus: [],
+      mainThread: [],
     };
 
     // Extract paths to .js, .lepus and .css files from the current compilation
@@ -1016,7 +1007,7 @@ class LynxTemplatePluginImpl {
       const asset = compilation.getAsset(filename)!;
 
       if (asset.info['lynx:main-thread']) {
-        assets.lepus.push(asset);
+        assets.mainThread.push(asset);
         return;
       }
 
@@ -1025,7 +1016,7 @@ class LynxTemplatePluginImpl {
       // ext will contain .js or .css, because .mjs recognizes as .js
       const ext = (extMatch[1] === 'mjs' ? 'js' : extMatch[1]) as 'js' | 'css';
 
-      assets[ext].push(asset);
+      assets[ext === 'js' ? 'backgroundThread' : 'css'].push(asset);
     });
 
     return assets;
@@ -1035,9 +1026,9 @@ class LynxTemplatePluginImpl {
 }
 
 interface AssetsInformationByGroups {
-  js: Asset[];
+  backgroundThread: Asset[];
   css: Asset[];
-  lepus: Asset[];
+  mainThread: Asset[];
 }
 
 export function isDebug(): boolean {

@@ -3,8 +3,9 @@
 // LICENSE file in the root directory of this source tree.
 import { Element } from './api/element.js';
 import type { ClosureValueType, Worklet, WorkletRefImpl } from './bindings/types.js';
-import { clearCurrentCtx, traceCtxCall } from './ctxTrace.js';
+import { initRunOnBackgroundDelay } from './delayRunOnBackground.js';
 import { delayExecUntilJsReady, initEventDelay } from './delayWorkletEvent.js';
+import { hydrateCtx } from './hydrate.js';
 import { JsFunctionLifecycleManager, isRunOnBackgroundEnabled } from './jsFunctionLifecycle.js';
 import { profile } from './utils/profile.js';
 import { getFromWorkletRefMap, initWorkletRef } from './workletRef.js';
@@ -12,8 +13,10 @@ import { getFromWorkletRefMap, initWorkletRef } from './workletRef.js';
 function initWorklet(): void {
   globalThis.lynxWorkletImpl = {
     _workletMap: {},
-    _eventDelayImpl: initEventDelay(),
     _refImpl: initWorkletRef(),
+    _runOnBackgroundDelayImpl: initRunOnBackgroundDelay(),
+    _hydrateCtx: hydrateCtx,
+    _eventDelayImpl: initEventDelay(),
   };
 
   if (isRunOnBackgroundEnabled()) {
@@ -32,7 +35,7 @@ function initWorklet(): void {
  * @param id worklet hash
  * @param worklet worklet function
  */
-function registerWorklet(_type: string, id: string, worklet: (...args: any[]) => any): void {
+function registerWorklet(_type: string, id: string, worklet: (...args: unknown[]) => unknown): void {
   lynxWorkletImpl._workletMap[id] = worklet;
 }
 
@@ -55,29 +58,24 @@ function runWorklet(ctx: Worklet, params: ClosureValueType[]): unknown {
 }
 
 function runWorkletImpl(ctx: Worklet, params: ClosureValueType[]): unknown {
-  traceCtxCall(ctx, params);
-  try {
-    const worklet: (...args: any[]) => unknown = profile(
-      'transformWorkletCtx ' + ctx._wkltId,
-      () => transformWorklet(ctx, true),
-    );
-    const params_: ClosureValueType[] = profile(
-      'transformWorkletParams',
-      () => transformWorklet(params || [], false),
-    );
-    return profile('runWorklet', () => worklet(...params_));
-  } finally {
-    clearCurrentCtx();
-  }
+  const worklet: (...args: unknown[]) => unknown = profile(
+    'transformWorkletCtx ' + ctx._wkltId,
+    () => transformWorklet(ctx, true),
+  );
+  const params_: ClosureValueType[] = profile(
+    'transformWorkletParams',
+    () => transformWorklet(params || [], false),
+  );
+  return profile('runWorklet', () => worklet(...params_));
 }
 
 function validateWorklet(ctx: unknown): ctx is Worklet {
   return typeof ctx === 'object' && ctx !== null && ('_wkltId' in ctx || '_lepusWorkletHash' in ctx);
 }
 
-const workletCache = new WeakMap<object, ClosureValueType | ((...args: any[]) => any)>();
+const workletCache = new WeakMap<object, ClosureValueType | ((...args: unknown[]) => unknown)>();
 
-function transformWorklet(ctx: Worklet, isWorklet: true): (...args: any[]) => any;
+function transformWorklet(ctx: Worklet, isWorklet: true): (...args: unknown[]) => unknown;
 function transformWorklet(
   ctx: ClosureValueType[],
   isWorklet: false,
@@ -86,7 +84,7 @@ function transformWorklet(
 function transformWorklet(
   ctx: ClosureValueType,
   isWorklet: boolean,
-): ClosureValueType | ((...args: any[]) => any) {
+): ClosureValueType | ((...args: unknown[]) => unknown) {
   /* v8 ignore next 3 */
   if (typeof ctx !== 'object' || ctx === null) {
     return ctx;
@@ -109,7 +107,7 @@ function transformWorklet(
 }
 
 const transformWorkletInner = (
-  obj: ClosureValueType,
+  value: ClosureValueType,
   depth: number,
   ctx: unknown,
 ) => {
@@ -118,11 +116,12 @@ const transformWorkletInner = (
     throw new Error('Depth of value exceeds limit of ' + limit + '.');
   }
   /* v8 ignore next 3 */
-  if (typeof obj !== 'object' || obj === null) {
+  if (typeof value !== 'object' || value === null) {
     return;
   }
+  const obj = value as Record<string, ClosureValueType>;
+
   for (const key in obj) {
-    // @ts-ignore
     const subObj: ClosureValueType = obj[key];
     if (typeof subObj !== 'object' || subObj === null) {
       continue;
@@ -134,15 +133,13 @@ const transformWorkletInner = (
     }
 
     if (isEventTarget) {
-      // @ts-ignore
       obj[key] = new Element(subObj['elementRefptr'] as ElementNode);
       continue;
     }
     const isWorkletRef = '_wvid' in (subObj as object);
     if (isWorkletRef) {
-      // @ts-ignore
       obj[key] = getFromWorkletRefMap(
-        (subObj as any as WorkletRefImpl<unknown>)._wvid,
+        subObj as unknown as WorkletRefImpl<unknown>,
       );
       continue;
     }
@@ -150,9 +147,9 @@ const transformWorkletInner = (
     if (isWorklet) {
       // `subObj` is worklet ctx. Shallow copy it to prevent the transformed worklet from referencing ctx.
       // This would result in the value of `workletCache` referencing its key.
-      // @ts-ignore
       obj[key] = lynxWorkletImpl._workletMap[(subObj as Worklet)._wkltId]!
         .bind({ ...subObj });
+      obj[key].ctx = subObj;
       continue;
     }
     const isJsFn = '_jsFnId' in subObj;

@@ -16,9 +16,9 @@ import type {
   OffscreenElement,
 } from '@lynx-js/offscreen-document';
 
-type CompareableElementJson = {
+type ComparableElementJson = {
   tag: string;
-  children: CompareableElementJson[];
+  children: ComparableElementJson[];
   parentUid?: number;
 };
 let runtime: any;
@@ -40,7 +40,7 @@ const { decodeOperation } = initOffscreenDocument({
 
 function serializeElementThreadElement(
   element: OffscreenElement,
-): CompareableElementJson {
+): ComparableElementJson {
   const parent = runtime.__GetParent(element);
   const tag = runtime.__GetTag(element);
   const parentUid = parent && runtime.__GetTag(element) !== 'page'
@@ -56,7 +56,7 @@ function serializeElementThreadElement(
   };
 }
 
-function serializeDomElement(element: Element): CompareableElementJson {
+function serializeDomElement(element: Element): ComparableElementJson {
   const attributes: Record<string, string> = {};
   for (const attr of element.attributes) {
     if (attr.value) {
@@ -102,13 +102,19 @@ function initializeMainThreadTest() {
     },
     lepusCode: { root: '' },
     customSections: {},
-    browserConfig: {},
+    browserConfig: {
+      pixelRatio: 0,
+      pixelWidth: 0,
+      pixelHeight: 0,
+    },
     pageConfig: {
       enableCSSSelector: true,
       enableRemoveCSSScope: true,
       defaultDisplayLinear: true,
+      defaultOverflowVisible: false,
     },
-    docu,
+    rootDom: docu,
+    createElement: docu.createElement.bind(docu),
     styleInfo: {},
     globalProps: {},
     callbacks: {

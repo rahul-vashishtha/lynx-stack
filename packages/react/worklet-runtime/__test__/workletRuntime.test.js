@@ -3,8 +3,8 @@
 // LICENSE file in the root directory of this source tree.
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { Element } from '../src/api/element';
 import { initApiEnv } from '../src/api/lynxApi';
-import { currentCtx } from '../src/ctxTrace';
 import { updateWorkletRefInitValueChanges } from '../src/workletRef';
 import { initWorklet } from '../src/workletRuntime';
 
@@ -26,15 +26,15 @@ describe('Worklet', () => {
     consoleMock.mockReset();
   });
 
-  it('worklet should be called', async () => {
+  it('worklet should be called', () => {
     initWorklet();
 
     const fn = vi.fn();
-    registerWorklet('main-thread', '1', fn);
+    globalThis.registerWorklet('main-thread', '1', fn);
     let worklet = {
       _wkltId: '1',
     };
-    runWorklet(worklet);
+    globalThis.runWorklet(worklet);
     expect(fn).toBeCalled();
   });
 
@@ -44,7 +44,7 @@ describe('Worklet', () => {
     const fn = vi.fn(function(event) {
       const { abc, wv } = this._c;
       let { _jsFn1 } = this._jsFn;
-      const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
       expect(event).toBe(1);
       expect(abc).toBe(22);
       expect(wv.current).toBe(333);
@@ -55,7 +55,7 @@ describe('Worklet', () => {
         }
       `);
     });
-    registerWorklet('main-thread', '1', fn);
+    globalThis.registerWorklet('main-thread', '1', fn);
     updateWorkletRefInitValueChanges([[178, 333]]);
 
     let wv = {
@@ -75,7 +75,7 @@ describe('Worklet', () => {
       _wkltId: '1',
       _execId: 666,
     };
-    runWorklet(worklet, [1]);
+    globalThis.runWorklet(worklet, [1]);
     expect(fn).toBeCalled();
   });
 
@@ -84,12 +84,12 @@ describe('Worklet', () => {
 
     const fn2 = vi.fn(function(arg1, arg2) {
       const { wv } = this._c;
-      const worklet2 = lynxWorkletImpl._workletMap['2'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['2'].bind(this);
       expect(arg1).toBe(1);
       expect(arg2.current).toBe(22);
       expect(wv.current).toBe(333);
     });
-    registerWorklet('main-thread', '2', fn2);
+    globalThis.registerWorklet('main-thread', '2', fn2);
     updateWorkletRefInitValueChanges([
       [1, 333],
       [2, 22],
@@ -97,10 +97,10 @@ describe('Worklet', () => {
 
     const fn1 = vi.fn(function(arg2) {
       const { worklet2, arg1 } = this._c;
-      const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
       worklet2(arg1, arg2);
     });
-    registerWorklet('main-thread', '1', fn1);
+    globalThis.registerWorklet('main-thread', '1', fn1);
 
     let wv = {
       _wvid: 1,
@@ -124,21 +124,21 @@ describe('Worklet', () => {
     let arg2 = {
       _wvid: 2,
     };
-    runWorklet(worklet, [arg2]);
-    expect(lynxWorkletImpl._workletMap['2']).toBeCalled();
+    globalThis.runWorklet(worklet, [arg2]);
+    expect(globalThis.lynxWorkletImpl._workletMap['2']).toBeCalled();
   });
 
   it('should call recursively', async () => {
     initWorklet();
 
-    const fn = vi.fn(function(x) {
+    const fn = vi.fn(function() {
       const { wv1 } = this._c;
-      const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+      const worklet = globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
       if (++wv1.current < 5) {
         worklet(wv1.current);
       }
     });
-    registerWorklet('main-thread', '1', fn);
+    globalThis.registerWorklet('main-thread', '1', fn);
     updateWorkletRefInitValueChanges([[1, 0]]);
 
     let wv1 = {
@@ -151,23 +151,8 @@ describe('Worklet', () => {
       },
       _wkltId: '1',
     };
-    runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
     expect(fn).toHaveBeenLastCalledWith(4);
-  });
-
-  it('should track current worklet ctx', async () => {
-    initWorklet();
-
-    const fn = vi.fn(() => {
-      expect(currentCtx.ctx._wkltId).toEqual('1');
-    });
-    registerWorklet('main-thread', '1', fn);
-    let worklet = {
-      _wkltId: '1',
-    };
-    runWorklet(worklet);
-    expect(fn).toBeCalled();
-    expect(currentCtx).toBeUndefined();
   });
 
   it('value of a workletRef should be preserved between calls', async () => {
@@ -176,10 +161,10 @@ describe('Worklet', () => {
     let value = 0;
     const fn = vi.fn(function() {
       const { wv1 } = this._c;
-      const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
       value = ++wv1.current;
     });
-    registerWorklet('main-thread', '1', fn);
+    globalThis.registerWorklet('main-thread', '1', fn);
     updateWorkletRefInitValueChanges([[1, 0]]);
 
     let worklet = {
@@ -190,19 +175,18 @@ describe('Worklet', () => {
       },
       _wkltId: '1',
     };
-    runWorklet(worklet, []);
-    runWorklet(worklet, []);
-    runWorklet(worklet, []);
-    runWorklet(worklet, []);
-    runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
+    globalThis.runWorklet(worklet, []);
     expect(value).toBe(5);
   });
 
   it('should support various types of parameters', async () => {
     initWorklet();
 
-    let value = 0;
-    lynxWorkletImpl._workletMap['1'] = vi.fn(function(
+    globalThis.lynxWorkletImpl._workletMap['1'] = vi.fn(function(
       argNull,
       argUndefined,
       argNumber,
@@ -211,8 +195,9 @@ describe('Worklet', () => {
       argObject,
       argWorklet,
       argWorkletRef,
+      argElement,
     ) {
-      const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
       expect(argNull).toBe(null);
       expect(argUndefined).toBe(undefined);
       expect(argNumber).toBe(888);
@@ -221,6 +206,7 @@ describe('Worklet', () => {
       expect(argArray[1]).toStrictEqual([4]);
       expect(argArray[2].current).toStrictEqual(5);
       expect(argObject).toStrictEqual({ str: 'str5' });
+      expect(argElement).toBeInstanceOf(Element);
       argWorklet(
         argNull,
         argUndefined,
@@ -229,11 +215,12 @@ describe('Worklet', () => {
         argArray,
         argObject,
         argWorkletRef,
+        argElement,
       );
       expect(argWorkletRef.current).toBe(444);
     });
 
-    lynxWorkletImpl._workletMap['arg'] = vi.fn(function(
+    globalThis.lynxWorkletImpl._workletMap['arg'] = vi.fn(function(
       argNull,
       argUndefined,
       argNumber,
@@ -241,8 +228,9 @@ describe('Worklet', () => {
       argArray,
       argObject,
       argWorkletRef,
+      argElement,
     ) {
-      const argWorklet = lynxWorkletImpl._workletMap['arg'].bind(this);
+      globalThis.lynxWorkletImpl._workletMap['arg'].bind(this);
       expect(argNull).toBe(null);
       expect(argUndefined).toBe(undefined);
       expect(argNumber).toBe(888);
@@ -252,6 +240,7 @@ describe('Worklet', () => {
       expect(argArray[2].current).toStrictEqual(5);
       expect(argObject).toStrictEqual({ str: 'str5' });
       expect(argWorkletRef.current).toBe(444);
+      expect(argElement).toBeInstanceOf(Element);
     });
 
     updateWorkletRefInitValueChanges([
@@ -277,7 +266,11 @@ describe('Worklet', () => {
       _wkltId: 'arg',
     };
 
-    runWorklet(worklet, [
+    let argElement = {
+      elementRefptr: 'element',
+    };
+
+    globalThis.runWorklet(worklet, [
       null,
       undefined,
       888,
@@ -286,19 +279,20 @@ describe('Worklet', () => {
       { str: 'str5' },
       argWorklet,
       argWorkletRef,
+      argElement,
     ]);
-    expect(lynxWorkletImpl._workletMap['arg']).toBeCalled();
+    expect(globalThis.lynxWorkletImpl._workletMap['arg']).toBeCalled();
   });
 
   it('should not throw when invalid worklet ctx', () => {
     initWorklet();
-    runWorklet({});
+    globalThis.runWorklet({});
     expect(consoleMock).lastCalledWith('Worklet: Invalid worklet object: {}');
-    runWorklet(undefined);
+    globalThis.runWorklet(undefined);
     expect(consoleMock).lastCalledWith('Worklet: Invalid worklet object: undefined');
-    runWorklet(null);
+    globalThis.runWorklet(null);
     expect(consoleMock).lastCalledWith('Worklet: Invalid worklet object: null');
-    runWorklet(1);
+    globalThis.runWorklet(1);
     expect(consoleMock).lastCalledWith('Worklet: Invalid worklet object: 1');
   });
 
@@ -306,9 +300,9 @@ describe('Worklet', () => {
     const a = {};
     a.a = a;
     initWorklet();
-    registerWorklet('main-thread', '1', () => {});
+    globalThis.registerWorklet('main-thread', '1', vi.fn());
     expect(() => {
-      runWorklet({ _wkltId: '1' }, [a]);
+      globalThis.runWorklet({ _wkltId: '1' }, [a]);
     }).toThrow(new Error('Depth of value exceeds limit of 1000.'));
   });
 });
@@ -319,30 +313,30 @@ it('requestAnimationFrame should throw error before 2.16', async () => {
   };
   initWorklet();
 
-  const fn = vi.fn(function(event) {
-    const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+  const fn = vi.fn(function() {
+    globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
     expect(() => {
-      requestAnimationFrame(() => {});
+      globalThis.requestAnimationFrame(vi.fn());
     }).toThrow(
       new Error(
         'requestAnimationFrame in main thread script requires Lynx sdk version 2.16',
       ),
     );
     expect(() => {
-      lynx.requestAnimationFrame(() => {});
+      globalThis.lynx.requestAnimationFrame(vi.fn());
     }).toThrow(
       new Error(
         'requestAnimationFrame in main thread script requires Lynx sdk version 2.16',
       ),
     );
   });
-  registerWorklet('main-thread', '1', fn);
+  globalThis.registerWorklet('main-thread', '1', fn);
   updateWorkletRefInitValueChanges([[178, 333]]);
 
   let worklet = {
     _wkltId: '1',
   };
-  runWorklet(worklet, [1]);
+  globalThis.runWorklet(worklet, [1]);
   expect(fn).toBeCalled();
 });
 
@@ -350,29 +344,29 @@ it('requestAnimationFrame should throw error before 2.16 2', async () => {
   globalThis.SystemInfo = {};
   initWorklet();
 
-  const fn = vi.fn(function(event) {
-    const worklet = lynxWorkletImpl._workletMap['1'].bind(this);
+  const fn = vi.fn(function() {
+    globalThis.lynxWorkletImpl._workletMap['1'].bind(this);
     expect(() => {
-      requestAnimationFrame(() => {});
+      globalThis.requestAnimationFrame(vi.fn());
     }).toThrow(
       new Error(
         'requestAnimationFrame in main thread script requires Lynx sdk version 2.16',
       ),
     );
     expect(() => {
-      lynx.requestAnimationFrame(() => {});
+      globalThis.lynx.requestAnimationFrame(vi.fn());
     }).toThrow(
       new Error(
         'requestAnimationFrame in main thread script requires Lynx sdk version 2.16',
       ),
     );
   });
-  registerWorklet('main-thread', '1', fn);
+  globalThis.registerWorklet('main-thread', '1', fn);
   updateWorkletRefInitValueChanges([[178, 333]]);
 
   let worklet = {
     _wkltId: '1',
   };
-  runWorklet(worklet, [1]);
+  globalThis.runWorklet(worklet, [1]);
   expect(fn).toBeCalled();
 });

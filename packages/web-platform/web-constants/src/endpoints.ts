@@ -8,13 +8,14 @@ import type {
   LynxCrossThreadEvent,
 } from './types/EventType.js';
 import type { Cloneable, CloneableObject } from './types/Cloneable.js';
-import type { MainThreadStartConfigs } from './types/MainThreadStartConfigs.js';
+import type { StartMainThreadContextConfig } from './types/MainThreadStartConfigs.js';
 import type { IdentifierType, InvokeCallbackRes } from './types/NativeApp.js';
 import type { LynxTemplate } from './types/LynxModule.js';
 import type { NapiModulesMap } from './types/NapiModules.js';
 import type { NativeModulesMap } from './types/NativeModules.js';
 import type { ElementOperation } from '@lynx-js/offscreen-document';
 import type { BrowserConfig } from './types/PageConfig.js';
+import type { ElementAnimationOptions } from './types/Element.js';
 
 export const postExposureEndpoint = createRpcEndpoint<
   [{ exposures: ExposureWorkerEvent[]; disExposures: ExposureWorkerEvent[] }],
@@ -55,7 +56,7 @@ export const switchExposureServiceEndpoint = createRpcEndpoint<
 );
 
 export const mainThreadStartEndpoint = createRpcEndpoint<
-  [MainThreadStartConfigs],
+  [StartMainThreadContextConfig],
   void
 >('mainThreadStart', false, false);
 
@@ -211,3 +212,17 @@ export const dispatchJSContextOnMainThreadEndpoint = createRpcEndpoint<
   }],
   void
 >('dispatchJSContextOnMainThread', false, false);
+
+export const triggerElementMethodEndpoint = createRpcEndpoint<
+  [
+    method: string,
+    id: string,
+    options: ElementAnimationOptions,
+  ],
+  void
+>('__triggerElementMethod', false, false);
+
+export const updateGlobalPropsEndpoint = createRpcEndpoint<
+  [Cloneable],
+  void
+>('updateGlobalProps', false, false);

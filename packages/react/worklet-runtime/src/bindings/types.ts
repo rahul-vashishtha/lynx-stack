@@ -42,19 +42,27 @@ export interface Worklet {
   _wkltId: string;
   _workletType?: string;
   _c?: Record<string, ClosureValueType>;
-  _lepusWorkletHash?: string;
   _execId?: number;
   _jsFn?: Record<string, string>;
   _unmount?: () => void;
   [key: string]: ClosureValueType;
+
+  // for pre-0.99 compatibility
+  _lepusWorkletHash?: string;
 }
 
 /**
  * @public
  */
 export interface JsFnHandle {
-  _jsFnId: number;
+  _jsFnId?: number;
   _fn?: (...args: unknown[]) => unknown;
   _execId?: number;
   _error?: string;
+  _isFirstScreen?: boolean;
+  /**
+   * Stores an array of indexes of runOnBackground tasks that should be processed with a delay.
+   * This is used before hydration.
+   */
+  _delayIndices?: number[];
 }

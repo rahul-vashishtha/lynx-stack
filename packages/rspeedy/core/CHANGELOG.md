@@ -1,5 +1,39 @@
 # @lynx-js/rspeedy
 
+## 0.9.7
+
+### Patch Changes
+
+- The default value of `output.inlineScripts` should be `true`. ([#915](https://github.com/lynx-family/lynx-stack/pull/915))
+
+- Updated dependencies [[`c210b79`](https://github.com/lynx-family/lynx-stack/commit/c210b79319cf014c89c2215f5e0940163eccfa1e)]:
+  - @lynx-js/chunk-loading-webpack-plugin@0.3.0
+
+## 0.9.6
+
+### Patch Changes
+
+- Support `output.inlineScripts`, which controls whether to inline scripts into Lynx bundle (`.lynx.bundle`). ([#874](https://github.com/lynx-family/lynx-stack/pull/874))
+
+  Only background thread scripts can remain non-inlined, whereas the main thread script is always inlined.
+
+  example:
+
+  ```js
+  import { defineConfig } from '@lynx-js/rspeedy'
+
+  export default defineConfig({
+    output: {
+      inlineScripts: false,
+    },
+  })
+  ```
+
+- Bump Rsbuild v1.3.21 with Rspack v1.3.11. ([#863](https://github.com/lynx-family/lynx-stack/pull/863))
+
+- Updated dependencies [[`5b67bde`](https://github.com/lynx-family/lynx-stack/commit/5b67bde8a7286b9dcc727c9707cf83020bb5abfa)]:
+  - @lynx-js/chunk-loading-webpack-plugin@0.2.1
+
 ## 0.9.5
 
 ### Patch Changes
