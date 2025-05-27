@@ -1,4 +1,4 @@
-// Copyright 2024 The Lynx Authors. All rights reserved.
+// Copyright (year) The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import path from 'node:path'
@@ -17,9 +17,9 @@ import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-pl
 import {
   CSSPlugins,
   LynxTemplatePlugin,
+  WebEncodePlugin,
 } from '@lynx-js/template-webpack-plugin'
 import { LAYERS, VueWebpackPlugin } from '@lynx-js/vue-webpack-plugin'
-import { WebWebpackPlugin } from '@lynx-js/web-webpack-plugin'
 
 import type { PluginVueLynxOptions } from './pluginVueLynx.js'
 
@@ -242,7 +242,7 @@ export function applyEntry(
         // Configure the web plugin
         chain
           .plugin(`${PLUGIN_NAME_WEB}-${entryName}`)
-          .use(WebWebpackPlugin, [{
+          .use(WebEncodePlugin, [{
             // Configure the entry points
             mainThreadEntry,
             backgroundEntry,

@@ -48,6 +48,10 @@ patchedDependencies:
 importers:
 
   .:
+    dependencies:
+      cli@2.18.4:
+        specifier: link:napi-rs/cli@2.18.4
+        version: link:napi-rs/cli@2.18.4
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -170,6 +174,28 @@ importers:
       '@types/react':
         specifier: ^18.3.22
         version: 18.3.22
+
+  examples/vue:
+    dependencies:
+      '@lynx-js/vue':
+        specifier: workspace:*
+        version: link:../../packages/vue
+    devDependencies:
+      '@lynx-js/qrcode-rsbuild-plugin':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/plugin-qrcode
+      '@lynx-js/rspeedy':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/core
+      '@lynx-js/rspeedy-plugin-vue':
+        specifier: workspace:*
+        version: link:../../packages/rspeedy/plugin-vue
+      '@lynx-js/types':
+        specifier: ^3.2.0
+        version: 3.3.0
+      typescript:
+        specifier: ~5.7.3
+        version: 5.7.3
 
   packages/background-only: {}
 
@@ -379,6 +405,12 @@ importers:
       '@lynx-js/rspeedy':
         specifier: workspace:^
         version: link:../core
+      '@lynx-js/rspeedy-plugin-vue':
+        specifier: workspace:^
+        version: link:../plugin-vue
+      '@lynx-js/vue':
+        specifier: workspace:^
+        version: link:../../vue
 
   packages/rspeedy/plugin-qrcode:
     devDependencies:
@@ -495,6 +527,64 @@ importers:
       '@rsbuild/core':
         specifier: catalog:rsbuild
         version: 1.3.21
+
+  packages/rspeedy/plugin-vue:
+    dependencies:
+      '@lynx-js/css-extract-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../webpack/css-extract-webpack-plugin
+      '@lynx-js/runtime-wrapper-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../webpack/runtime-wrapper-webpack-plugin
+      '@lynx-js/template-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../webpack/template-webpack-plugin
+      '@lynx-js/vue':
+        specifier: workspace:*
+        version: link:../../vue
+      '@lynx-js/vue-webpack-plugin':
+        specifier: workspace:*
+        version: link:../../webpack/vue-webpack-plugin
+    devDependencies:
+      '@lynx-js/rspeedy':
+        specifier: workspace:*
+        version: link:../core
+      '@lynx-js/vitest-setup':
+        specifier: workspace:*
+        version: link:../../tools/vitest-setup
+      '@microsoft/api-extractor':
+        specifier: ^7.38.0
+        version: 7.52.8(@types/node@22.15.21)
+      '@rollup/plugin-typescript':
+        specifier: ^12.1.2
+        version: 12.1.2(patch_hash=926ba262ec682d27369f1a8648a0dfb657fb5f1b28539ca3628d292276c91c3d)(rollup@4.34.9)(tslib@2.8.1)(typescript@5.8.3)
+      '@rsbuild/core':
+        specifier: catalog:rsbuild
+        version: 1.3.21
+      '@rsbuild/plugin-sass':
+        specifier: 1.2.2
+        version: 1.2.2(@rsbuild/core@1.3.21)
+      '@rsbuild/plugin-typed-css-modules':
+        specifier: 1.0.2
+        version: 1.0.2(@rsbuild/core@1.3.21)
+      '@rsbuild/plugin-webpack-swc':
+        specifier: 1.0.11
+        version: 1.0.11(@rsbuild/core@1.3.21)
+      '@rsbuild/webpack':
+        specifier: 1.2.3
+        version: 1.2.3(@rsbuild/core@1.3.21)(@rspack/core@1.3.11(@swc/helpers@0.5.17))
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.17
+      type-fest:
+        specifier: ^4.37.0
+        version: 4.41.0
+      typia:
+        specifier: 7.6.4
+        version: 7.6.4(@samchon/openapi@4.3.2)(typescript@5.8.3)
+      typia-rspack-plugin:
+        specifier: ^1.0.2
+        version: 1.0.2(typescript@5.8.3)(typia@7.6.4(@samchon/openapi@4.3.2)(typescript@5.8.3))
 
   packages/rspeedy/upgrade-rspeedy:
     devDependencies:
@@ -633,6 +723,72 @@ importers:
       webpack:
         specifier: ^5.99.9
         version: 5.99.9
+
+  packages/vue:
+    dependencies:
+      vue:
+        specifier: ^3.3.0
+        version: 3.5.15(typescript@5.8.3)
+    devDependencies:
+      '@lynx-js/types':
+        specifier: ^3.2.0
+        version: 3.3.0
+      '@microsoft/api-extractor':
+        specifier: ^7.38.0
+        version: 7.52.8(@types/node@22.15.21)
+
+  packages/vue/runtime:
+    dependencies:
+      vue:
+        specifier: ^3.3.0
+        version: 3.5.15(typescript@5.7.3)
+    devDependencies:
+      '@lynx-js/types':
+        specifier: ^3.2.0
+        version: 3.3.0
+      '@lynx-js/vitest-setup':
+        specifier: workspace:*
+        version: link:../../tools/vitest-setup
+      '@tsconfig/strictest':
+        specifier: ^2.0.5
+        version: 2.0.5
+      '@vitest/coverage-v8':
+        specifier: ^3.0.8
+        version: 3.1.4(vitest@3.1.4)
+      '@vitest/ui':
+        specifier: ^3.0.8
+        version: 3.1.4(vitest@3.1.4)
+      typescript:
+        specifier: ~5.7.3
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.8
+        version: 3.1.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/ui@3.1.4)(jsdom@26.1.0)(sass-embedded@1.86.0)(terser@5.31.6)
+
+  packages/vue/runtime-lynx:
+    dependencies:
+      vue:
+        specifier: ^3.3.0
+        version: 3.5.15(typescript@5.7.3)
+    devDependencies:
+      '@tsconfig/strictest':
+        specifier: ^2.0.5
+        version: 2.0.5
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.17.50
+      '@vitest/coverage-v8':
+        specifier: ^3.0.8
+        version: 3.1.4(vitest@3.1.4)
+      '@vitest/ui':
+        specifier: ^3.0.8
+        version: 3.1.4(vitest@3.1.4)
+      typescript:
+        specifier: ~5.7.3
+        version: 5.7.3
+      vitest:
+        specifier: ^3.0.8
+        version: 3.1.4(@types/debug@4.1.12)(@types/node@20.17.50)(@vitest/ui@3.1.4)(jsdom@26.1.0)(sass-embedded@1.86.0)(terser@5.31.6)
 
   packages/web-platform/offscreen-document: {}
 
@@ -1082,6 +1238,40 @@ importers:
       webpack-merge:
         specifier: ^6.0.1
         version: 6.0.1
+
+  packages/webpack/vue-webpack-plugin:
+    dependencies:
+      '@lynx-js/webpack-runtime-globals':
+        specifier: workspace:*
+        version: link:../webpack-runtime-globals
+      tiny-invariant:
+        specifier: ^1.3.3
+        version: 1.3.3
+    devDependencies:
+      '@lynx-js/css-extract-webpack-plugin':
+        specifier: workspace:*
+        version: link:../css-extract-webpack-plugin
+      '@lynx-js/template-webpack-plugin':
+        specifier: workspace:*
+        version: link:../template-webpack-plugin
+      '@microsoft/api-extractor':
+        specifier: 'catalog:'
+        version: 7.52.8(@types/node@22.15.21)
+      '@rspack/core':
+        specifier: 1.3.11
+        version: 1.3.11(@swc/helpers@0.5.17)
+      css-loader:
+        specifier: ^7.1.2
+        version: 7.1.2(@rspack/core@1.3.11(@swc/helpers@0.5.17))(webpack@5.99.9(@swc/core@1.7.35(@swc/helpers@0.5.17)))
+      swc-loader:
+        specifier: ^0.2.6
+        version: 0.2.6(@swc/core@1.7.35(@swc/helpers@0.5.17))(webpack@5.99.9(@swc/core@1.7.35(@swc/helpers@0.5.17)))
+      vue:
+        specifier: ^3.5
+        version: 3.5.15(typescript@5.8.3)
+      webpack:
+        specifier: ^5.98.0
+        version: 5.99.9(@swc/core@1.7.35(@swc/helpers@0.5.17))
 
   packages/webpack/webpack-dev-transport:
     devDependencies:
@@ -2663,6 +2853,11 @@ packages:
     peerDependencies:
       '@rsbuild/core': 1.x
 
+  '@rsbuild/plugin-sass@1.2.2':
+    resolution: {integrity: sha512-vznLfxxPXDyFSPYW7JWTYf/6SJMx5DEgKParNd5lXo7FRa1IKsQOrJdf6F3Rm+T7jKoAvnCVXjM2IkxBW2yJSA==}
+    peerDependencies:
+      '@rsbuild/core': 1.x
+
   '@rsbuild/plugin-sass@1.3.1':
     resolution: {integrity: sha512-hyqsMyI/XPntdL3xRRC25SIkWUWA9I7gVG46K9a8+xJVLJfLp8rHR1sKtc8JYOSPBIXcYwtzHIA9ib1gS2kRUQ==}
     peerDependencies:
@@ -2684,10 +2879,20 @@ packages:
       '@rsbuild/core':
         optional: true
 
+  '@rsbuild/plugin-webpack-swc@1.0.11':
+    resolution: {integrity: sha512-dZ1rB66Kv5qgz1HODvFOXywrigLslqceSvk71hIBmmqOqdDBb0LrAEI78quQm3rTPecYJVFFoMOv5kVPPh6MRg==}
+    peerDependencies:
+      '@rsbuild/core': 1.x
+
   '@rsbuild/plugin-webpack-swc@1.1.1':
     resolution: {integrity: sha512-7FIBkHWBaSHvaHyReWWQ7K5GzPIjZ1IcpPSwmNU+IVtMLt7gLGuUkxuPnWllGC7JdwM/PV2GEHxNhmjozgHrVA==}
     peerDependencies:
       '@rsbuild/core': 1.x
+
+  '@rsbuild/webpack@1.2.3':
+    resolution: {integrity: sha512-z2xRkO3NO9Rt5PIqABqSo2mB3W55uNcHFvuLdYvfz2zIP/FtlYiH2oliMTc3TY7RkKNAWq2jjlVU7aaRY/mfTQ==}
+    peerDependencies:
+      '@rsbuild/core': ^1.1.3
 
   '@rsbuild/webpack@1.3.2':
     resolution: {integrity: sha512-ecpZDyKLunUkEM5Yg6UVCONJFHD4+qY5Vtci8t2BRZneQgwZiYrENz+RKYN7NBir6+7nHy3pYMVPU5WJAkGPSA==}
@@ -3238,6 +3443,9 @@ packages:
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
 
+  '@types/node@20.17.50':
+    resolution: {integrity: sha512-Mxiq0ULv/zo1OzOhwPqOA13I81CV/W3nvd3ChtQZRT5Cwz3cr0FKo/wMSsbTqL3EXpaBAEQhva2B8ByRkOIh9A==}
+
   '@types/node@22.15.21':
     resolution: {integrity: sha512-EV/37Td6c+MgKAbkcLG6vqZ2zEYHD7bvSrzqqs2RIhbA6w3x+Dqz8MZM3sP6kGTeLrdoOgKZe+Xja7tUB2DNkQ==}
 
@@ -3521,6 +3729,35 @@ packages:
 
   '@vitest/utils@3.1.4':
     resolution: {integrity: sha512-yriMuO1cfFhmiGc8ataN51+9ooHRuURdfAZfwFd3usWynjzpLslZdYnRegTv32qdgtJTsj15FoeZe2g15fY1gg==}
+
+  '@vue/compiler-core@3.5.15':
+    resolution: {integrity: sha512-nGRc6YJg/kxNqbv/7Tg4juirPnjHvuVdhcmDvQWVZXlLHjouq7VsKmV1hIxM/8yKM0VUfwT/Uzc0lO510ltZqw==}
+
+  '@vue/compiler-dom@3.5.15':
+    resolution: {integrity: sha512-ZelQd9n+O/UCBdL00rlwCrsArSak+YLZpBVuNDio1hN3+wrCshYZEDUO3khSLAzPbF1oQS2duEoMDUHScUlYjA==}
+
+  '@vue/compiler-sfc@3.5.15':
+    resolution: {integrity: sha512-3zndKbxMsOU6afQWer75Zot/aydjtxNj0T2KLg033rAFaQUn2PGuE32ZRe4iMhflbTcAxL0yEYsRWFxtPro8RQ==}
+
+  '@vue/compiler-ssr@3.5.15':
+    resolution: {integrity: sha512-gShn8zRREZbrXqTtmLSCffgZXDWv8nHc/GhsW+mbwBfNZL5pI96e7IWcIq8XGQe1TLtVbu7EV9gFIVSmfyarPg==}
+
+  '@vue/reactivity@3.5.15':
+    resolution: {integrity: sha512-GaA5VUm30YWobCwpvcs9nvFKf27EdSLKDo2jA0IXzGS344oNpFNbEQ9z+Pp5ESDaxyS8FcH0vFN/XSe95BZtHQ==}
+
+  '@vue/runtime-core@3.5.15':
+    resolution: {integrity: sha512-CZAlIOQ93nj0OPpWWOx4+QDLCMzBNY85IQR4Voe6vIID149yF8g9WQaWnw042f/6JfvLttK7dnyWlC1EVCRK8Q==}
+
+  '@vue/runtime-dom@3.5.15':
+    resolution: {integrity: sha512-wFplHKzKO/v998up2iCW3RN9TNUeDMhdBcNYZgs5LOokHntrB48dyuZHspcahKZczKKh3v6i164gapMPxBTKNw==}
+
+  '@vue/server-renderer@3.5.15':
+    resolution: {integrity: sha512-Gehc693kVTYkLt6QSYEjGvqvdK2zZ/gf/D5zkgmvBdeB30dNnVZS8yY7+IlBmHRd1rR/zwaqeu06Ij04ZxBscg==}
+    peerDependencies:
+      vue: 3.5.15
+
+  '@vue/shared@3.5.15':
+    resolution: {integrity: sha512-bKvgFJJL1ZX9KxMCTQY6xD9Dhe3nusd1OhyOb1cJYGqvAr0Vg8FIjHPMOEVbJ9GDT9HG+Bjdn4oS8ohKP8EvoA==}
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -4150,6 +4387,9 @@ packages:
 
   core-js-compat@3.41.0:
     resolution: {integrity: sha512-RFsU9LySVue9RTwdDVX/T0e2Y6jRYWXERKElIjpuEOEnxaXffI0X7RUwVzfYLfzuLXSNJDYoRYUAmRUcyln20A==}
+
+  core-js@3.41.0:
+    resolution: {integrity: sha512-SJ4/EHwS36QMJd6h/Rg+GyR4A5xE0FSI3eZ+iBVpfqf1x0eTSg1smWLHrA+2jQThZSh97fmSgFSU8B61nxosxA==}
 
   core-js@3.42.0:
     resolution: {integrity: sha512-Sz4PP4ZA+Rq4II21qkNqOEDTDrCvcANId3xpIgB34NDkWc3UduWj2dqEtN9yZIq8Dk3HyPI33x9sqqU5C8sr0g==}
@@ -8070,6 +8310,11 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <5.9.0'
 
+  typescript@5.7.3:
+    resolution: {integrity: sha512-84MVSjMEHP+FQRPy3pX9sTVV/INIex71s9TL2Gm5FG/WG1SqXeKyZ0k7/blY/4FdOzI12CBy1vGc4og/eus0fw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   typescript@5.8.2:
     resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
     engines: {node: '>=14.17'}
@@ -8080,12 +8325,26 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typia-rspack-plugin@1.0.2:
+    resolution: {integrity: sha512-5vCunp+l8A985K0An7yjgTKCU+SUA4iC9OGbaa8+OifaqDECQKBVH61wZy927dkcnzK8z/aFgJc18GiSTCvuiw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      typescript: '*'
+      typia: '*'
+
   typia-rspack-plugin@2.1.0:
     resolution: {integrity: sha512-uN0NUIJ5JJcWCpygYi+JZkPLRCHvhPyjNVHf7xSPhiRC+BV5LG1bofVaY6XGXNx1Ld7eF0mm6Rnsj8bwxSRBDQ==}
     engines: {node: '>=18'}
     peerDependencies:
       typescript: '*'
       typia: '*'
+
+  typia@7.6.4:
+    resolution: {integrity: sha512-Z3AcvGBjS7Dc7+iAG2VhsT0NIv3HMoXVTJ3F7Pgth8z7rhQu1JnyS8GGqqWdKk5ROvOgALEVEWmWv3Lym2eBIg==}
+    hasBin: true
+    peerDependencies:
+      '@samchon/openapi': '>=2.4.2 <3.0.0'
+      typescript: '>=4.8.0 <5.8.0'
 
   typia@9.3.1:
     resolution: {integrity: sha512-a3rqaWE3j5ynK3nmBPEMngLfVP7FH3OrgC4xO4A4QQdcgdVL/nxTxdEqYuEjRCdcOgZCIqOt3CNoQaorOITArg==}
@@ -8096,6 +8355,9 @@ packages:
 
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
+
+  undici-types@6.19.8:
+    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
@@ -8268,6 +8530,14 @@ packages:
 
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
+
+  vue@3.5.15:
+    resolution: {integrity: sha512-aD9zK4rB43JAMK/5BmS4LdPiEp8Fdh8P1Ve/XNuMF5YRf78fCyPE6FUbQwcaWQ5oZ1R2CD9NKE0FFOVpMR7gEQ==}
+    peerDependencies:
+      typescript: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
@@ -9990,6 +10260,15 @@ snapshots:
     transitivePeerDependencies:
       - webpack-hot-middleware
 
+  '@rsbuild/plugin-sass@1.2.2(@rsbuild/core@1.3.21)':
+    dependencies:
+      '@rsbuild/core': 1.3.21
+      deepmerge: 4.3.1
+      loader-utils: 2.0.4
+      postcss: 8.5.3
+      reduce-configs: 1.1.0
+      sass-embedded: 1.86.0
+
   '@rsbuild/plugin-sass@1.3.1(@rsbuild/core@1.3.21)':
     dependencies:
       '@rsbuild/core': 1.3.21
@@ -10015,6 +10294,17 @@ snapshots:
     optionalDependencies:
       '@rsbuild/core': 1.3.21
 
+  '@rsbuild/plugin-webpack-swc@1.0.11(@rsbuild/core@1.3.21)':
+    dependencies:
+      '@modern-js/swc-plugins': 0.6.11(@swc/helpers@0.5.17)
+      '@rsbuild/core': 1.3.21
+      '@swc/helpers': 0.5.17
+      core-js: 3.41.0
+      deepmerge: 4.3.1
+      lodash: 4.17.21
+      picocolors: 1.1.1
+      semver: 7.7.2
+
   '@rsbuild/plugin-webpack-swc@1.1.1(@rsbuild/core@1.3.21)':
     dependencies:
       '@modern-js/swc-plugins': 0.6.11(@swc/helpers@0.5.17)
@@ -10025,6 +10315,23 @@ snapshots:
       lodash: 4.17.21
       picocolors: 1.1.1
       semver: 7.7.2
+
+  '@rsbuild/webpack@1.2.3(@rsbuild/core@1.3.21)(@rspack/core@1.3.11(@swc/helpers@0.5.17))':
+    dependencies:
+      '@rsbuild/core': 1.3.21
+      copy-webpack-plugin: 11.0.0(webpack@5.99.9)
+      html-webpack-plugin: 5.6.3(@rspack/core@1.3.11(@swc/helpers@0.5.17))(webpack@5.99.9)
+      mini-css-extract-plugin: 2.9.2(webpack@5.99.9)
+      picocolors: 1.1.1
+      reduce-configs: 1.1.0
+      tsconfig-paths-webpack-plugin: 4.2.0
+      webpack: 5.99.9
+    transitivePeerDependencies:
+      - '@rspack/core'
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+      - webpack-cli
 
   '@rsbuild/webpack@1.3.2(@rsbuild/core@1.3.21)(@rspack/core@1.3.11(@swc/helpers@0.5.17))':
     dependencies:
@@ -10826,6 +11133,10 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
+  '@types/node@20.17.50':
+    dependencies:
+      undici-types: 6.19.8
+
   '@types/node@22.15.21':
     dependencies:
       undici-types: 6.21.0
@@ -11155,6 +11466,66 @@ snapshots:
       '@vitest/pretty-format': 3.1.4
       loupe: 3.1.3
       tinyrainbow: 2.0.0
+
+  '@vue/compiler-core@3.5.15':
+    dependencies:
+      '@babel/parser': 7.27.2
+      '@vue/shared': 3.5.15
+      entities: 4.5.0
+      estree-walker: 2.0.2
+      source-map-js: 1.2.1
+
+  '@vue/compiler-dom@3.5.15':
+    dependencies:
+      '@vue/compiler-core': 3.5.15
+      '@vue/shared': 3.5.15
+
+  '@vue/compiler-sfc@3.5.15':
+    dependencies:
+      '@babel/parser': 7.27.2
+      '@vue/compiler-core': 3.5.15
+      '@vue/compiler-dom': 3.5.15
+      '@vue/compiler-ssr': 3.5.15
+      '@vue/shared': 3.5.15
+      estree-walker: 2.0.2
+      magic-string: 0.30.17
+      postcss: 8.5.3
+      source-map-js: 1.2.1
+
+  '@vue/compiler-ssr@3.5.15':
+    dependencies:
+      '@vue/compiler-dom': 3.5.15
+      '@vue/shared': 3.5.15
+
+  '@vue/reactivity@3.5.15':
+    dependencies:
+      '@vue/shared': 3.5.15
+
+  '@vue/runtime-core@3.5.15':
+    dependencies:
+      '@vue/reactivity': 3.5.15
+      '@vue/shared': 3.5.15
+
+  '@vue/runtime-dom@3.5.15':
+    dependencies:
+      '@vue/reactivity': 3.5.15
+      '@vue/runtime-core': 3.5.15
+      '@vue/shared': 3.5.15
+      csstype: 3.1.3
+
+  '@vue/server-renderer@3.5.15(vue@3.5.15(typescript@5.7.3))':
+    dependencies:
+      '@vue/compiler-ssr': 3.5.15
+      '@vue/shared': 3.5.15
+      vue: 3.5.15(typescript@5.7.3)
+
+  '@vue/server-renderer@3.5.15(vue@3.5.15(typescript@5.8.3))':
+    dependencies:
+      '@vue/compiler-ssr': 3.5.15
+      '@vue/shared': 3.5.15
+      vue: 3.5.15(typescript@5.8.3)
+
+  '@vue/shared@3.5.15': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
@@ -11834,6 +12205,8 @@ snapshots:
   core-js-compat@3.41.0:
     dependencies:
       browserslist: 4.24.4
+
+  core-js@3.41.0: {}
 
   core-js@3.42.0: {}
 
@@ -16510,15 +16883,33 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  typescript@5.7.3: {}
+
   typescript@5.8.2: {}
 
   typescript@5.8.3: {}
+
+  typia-rspack-plugin@1.0.2(typescript@5.8.3)(typia@7.6.4(@samchon/openapi@4.3.2)(typescript@5.8.3)):
+    dependencies:
+      typescript: 5.8.3
+      typia: 7.6.4(@samchon/openapi@4.3.2)(typescript@5.8.3)
+      unplugin: 2.3.4
 
   typia-rspack-plugin@2.1.0(typescript@5.8.3)(typia@9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)):
     dependencies:
       typescript: 5.8.3
       typia: 9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3)
       unplugin: 2.3.4
+
+  typia@7.6.4(@samchon/openapi@4.3.2)(typescript@5.8.3):
+    dependencies:
+      '@samchon/openapi': 4.3.2
+      commander: 10.0.1
+      comment-json: 4.2.5
+      inquirer: 8.2.6
+      package-manager-detector: 0.2.11
+      randexp: 0.5.3
+      typescript: 5.8.3
 
   typia@9.3.1(@samchon/openapi@4.3.2)(typescript@5.8.3):
     dependencies:
@@ -16537,6 +16928,8 @@ snapshots:
       has-bigints: 1.0.2
       has-symbols: 1.1.0
       which-boxed-primitive: 1.0.2
+
+  undici-types@6.19.8: {}
 
   undici-types@6.21.0: {}
 
@@ -16670,6 +17063,24 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
+  vite-node@3.1.4(@types/node@20.17.50)(sass-embedded@1.86.0)(terser@5.31.6):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.1
+      es-module-lexer: 1.7.0
+      pathe: 2.0.3
+      vite: 5.4.2(@types/node@20.17.50)(sass-embedded@1.86.0)(terser@5.31.6)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+
   vite-node@3.1.4(@types/node@22.15.21)(sass-embedded@1.86.0)(terser@5.31.6):
     dependencies:
       cac: 6.7.14
@@ -16688,6 +17099,17 @@ snapshots:
       - supports-color
       - terser
 
+  vite@5.4.2(@types/node@20.17.50)(sass-embedded@1.86.0)(terser@5.31.6):
+    dependencies:
+      esbuild: 0.21.5
+      postcss: 8.5.3
+      rollup: 4.34.9
+    optionalDependencies:
+      '@types/node': 20.17.50
+      fsevents: 2.3.3
+      sass-embedded: 1.86.0
+      terser: 5.31.6
+
   vite@5.4.2(@types/node@22.15.21)(sass-embedded@1.86.0)(terser@5.31.6):
     dependencies:
       esbuild: 0.21.5
@@ -16698,6 +17120,45 @@ snapshots:
       fsevents: 2.3.3
       sass-embedded: 1.86.0
       terser: 5.31.6
+
+  vitest@3.1.4(@types/debug@4.1.12)(@types/node@20.17.50)(@vitest/ui@3.1.4)(jsdom@26.1.0)(sass-embedded@1.86.0)(terser@5.31.6):
+    dependencies:
+      '@vitest/expect': 3.1.4
+      '@vitest/mocker': 3.1.4(vite@5.4.2(@types/node@22.15.21)(sass-embedded@1.86.0)(terser@5.31.6))
+      '@vitest/pretty-format': 3.1.4
+      '@vitest/runner': 3.1.4
+      '@vitest/snapshot': 3.1.4
+      '@vitest/spy': 3.1.4
+      '@vitest/utils': 3.1.4
+      chai: 5.2.0
+      debug: 4.4.1
+      expect-type: 1.2.1
+      magic-string: 0.30.17
+      pathe: 2.0.3
+      std-env: 3.9.0
+      tinybench: 2.9.0
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.14
+      tinypool: 1.0.2
+      tinyrainbow: 2.0.0
+      vite: 5.4.2(@types/node@20.17.50)(sass-embedded@1.86.0)(terser@5.31.6)
+      vite-node: 3.1.4(@types/node@20.17.50)(sass-embedded@1.86.0)(terser@5.31.6)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@types/debug': 4.1.12
+      '@types/node': 20.17.50
+      '@vitest/ui': 3.1.4(vitest@3.1.4)
+      jsdom: 26.1.0
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
 
   vitest@3.1.4(@types/debug@4.1.12)(@types/node@22.15.21)(@vitest/ui@3.1.4)(jsdom@26.1.0)(sass-embedded@1.86.0)(terser@5.31.6):
     dependencies:
@@ -16741,6 +17202,26 @@ snapshots:
   vscode-languageserver-textdocument@1.0.12: {}
 
   vscode-uri@3.1.0: {}
+
+  vue@3.5.15(typescript@5.7.3):
+    dependencies:
+      '@vue/compiler-dom': 3.5.15
+      '@vue/compiler-sfc': 3.5.15
+      '@vue/runtime-dom': 3.5.15
+      '@vue/server-renderer': 3.5.15(vue@3.5.15(typescript@5.7.3))
+      '@vue/shared': 3.5.15
+    optionalDependencies:
+      typescript: 5.7.3
+
+  vue@3.5.15(typescript@5.8.3):
+    dependencies:
+      '@vue/compiler-dom': 3.5.15
+      '@vue/compiler-sfc': 3.5.15
+      '@vue/runtime-dom': 3.5.15
+      '@vue/server-renderer': 3.5.15(vue@3.5.15(typescript@5.8.3))
+      '@vue/shared': 3.5.15
+    optionalDependencies:
+      typescript: 5.8.3
 
   w3c-xmlserializer@5.0.0:
     dependencies:
