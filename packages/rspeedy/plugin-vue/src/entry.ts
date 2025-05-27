@@ -1,3 +1,6 @@
+// Copyright 2024 The Lynx Authors. All rights reserved.
+// Licensed under the Apache License Version 2.0 that can be found in the
+// LICENSE file in the root directory of this source tree.
 import path from 'node:path'
 
 import type {
@@ -75,7 +78,11 @@ export function applyEntry(
     const hash = getHash(config, isProd)
 
     // Configure the template filename
-    const templateFilename = `[name]/template${hash}.tt`
+    const templateFilename = (
+      typeof config.output?.filename === 'object'
+        ? config.output.filename.bundle ?? config.output.filename.template
+        : config.output?.filename
+    ) ?? '[name].[platform].bundle'
 
     // Process each entry
     for (const [entryName, entryValue] of entries) {
