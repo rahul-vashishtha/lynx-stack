@@ -1,7 +1,7 @@
-// Copyright (year) The Lynx Authors. All rights reserved.
+// Copyright 2025 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
-import path from 'node:path'
+import { createRequire } from 'node:module'
 
 import type {
   NormalizedEnvironmentConfig,
@@ -16,6 +16,7 @@ import type { ExposedAPI } from '@lynx-js/rspeedy'
 import { RuntimeWrapperWebpackPlugin } from '@lynx-js/runtime-wrapper-webpack-plugin'
 import {
   CSSPlugins,
+  LynxEncodePlugin,
   LynxTemplatePlugin,
   WebEncodePlugin,
 } from '@lynx-js/template-webpack-plugin'
@@ -29,7 +30,7 @@ const PLUGIN_NAME_RUNTIME_WRAPPER = 'lynx:runtime-wrapper'
 const PLUGIN_NAME_CSS_EXTRACT = 'lynx:css-extract'
 const PLUGIN_NAME_WEB = 'lynx:web'
 
-const DEFAULT_DIST_PATH_INTERMEDIATE = '.rspeedy'
+// const DEFAULT_DIST_PATH_INTERMEDIATE = '.rspeedy'
 const DEFAULT_FILENAME_HASH = '.[contenthash:8]'
 const EMPTY_HASH = ''
 
@@ -62,7 +63,7 @@ export function applyEntry(
   )
 
   // Get the environment configuration
-  const isDev = api.context.command === 'dev'
+  const isDev = process.env.NODE_ENV === 'development'
   const isProd = !isDev
 
   // Configure the entry points
@@ -103,7 +104,10 @@ export function applyEntry(
       const backgroundName = getBackgroundFilename(entryName, config, isProd)
 
       // Configure the entry points
-      api.modifyBundlerChain((chain) => {
+      api.modifyBundlerChain((chain, { environment }) => {
+        const isLynx = environment.name === 'lynx'
+        const isWeb = environment.name === 'web'
+
         // Configure the Vue webpack plugin
         chain
           .plugin(`${PLUGIN_NAME_VUE}-${entryName}`)
@@ -135,18 +139,18 @@ export function applyEntry(
             import: imports.join(''),
             filename: mainThreadName,
           })
-
-        // Add hot module replacement for development
-        if (isDev) {
-          chain
-            .entry(mainThreadEntry)
-            .add({
-              layer: LAYERS.MAIN_THREAD,
-              import: require.resolve(
-                '@lynx-js/css-extract-webpack-plugin/runtime/hotModuleReplacement.lepus.cjs',
-              ),
-            })
-        }
+          .when(isDev && !isWeb, entry => {
+            const require = createRequire(import.meta.url)
+            // use prepend to make sure it does not affect the exports from the entry
+            entry
+              .prepend({
+                layer: LAYERS.MAIN_THREAD,
+                import: require.resolve(
+                  '@lynx-js/css-extract-webpack-plugin/runtime/hotModuleReplacement.lepus.cjs',
+                ),
+              })
+          })
+          .end()
 
         // Configure the background entry
         chain
@@ -156,25 +160,23 @@ export function applyEntry(
             import: imports.join(''),
             filename: backgroundName,
           })
-
-        // Add hot module replacement for development
-        if (isDev) {
-          chain
-            // Add hot module replacement for development
-            .add({
-              layer: LAYERS.BACKGROUND,
-              import: '@rspack/core/hot/dev-server',
-            })
-            .add({
-              layer: LAYERS.BACKGROUND,
-              import: '@lynx-js/webpack-dev-transport/client',
-            })
-            // Vue-specific HMR
-            .add({
-              layer: LAYERS.BACKGROUND,
-              import: '@lynx-js/vue/hmr',
-            })
-        }
+          .when(isDev && !isWeb, entry => {
+            // use prepend to make sure it does not affect the exports from the entry
+            entry
+              .prepend({
+                layer: LAYERS.BACKGROUND,
+                import: '@rspack/core/hot/dev-server',
+              })
+              .prepend({
+                layer: LAYERS.BACKGROUND,
+                import: '@lynx-js/webpack-dev-transport/client',
+              })
+              .prepend({
+                layer: LAYERS.BACKGROUND,
+                import: '@lynx-js/vue/hmr',
+              })
+          })
+          .end()
 
         // Configure the template plugin
         chain
@@ -182,11 +184,8 @@ export function applyEntry(
           .use(LynxTemplatePlugin, [{
             dsl: 'vue_template',
             chunks: [mainThreadEntry, backgroundEntry],
-            filename: templateFilename.replaceAll('[name]', entryName)
-              .replaceAll(
-                '[platform]',
-                'lynx',
-              ),
+            filename: templateFilename.replace(/\[name\]/g, entryName)
+              .replace(/\[platform\]/g, environment.name),
             customCSSInheritanceList,
             debugInfoOutside,
             defaultDisplayLinear,
@@ -229,8 +228,8 @@ export function applyEntry(
                 // Inject the template path
                 __TEMPLATE_PATH__: JSON.stringify(
                   templateFilename
-                    .replaceAll('[name]', entryName)
-                    .replaceAll('[platform]', 'lynx'),
+                    .replace(/\[name\]/g, entryName)
+                    .replace(/\[platform\]/g, environment.name),
                 ),
               })
             },
@@ -239,28 +238,23 @@ export function applyEntry(
             test: /^(?!.*main-thread(?:\.[A-Fa-f0-9]*)?\.js$).*\.js$/,
           }])
 
-        // Configure the web plugin
-        chain
-          .plugin(`${PLUGIN_NAME_WEB}-${entryName}`)
-          .use(WebEncodePlugin, [{
-            // Configure the entry points
-            mainThreadEntry,
-            backgroundEntry,
-            // Configure the output paths
-            outputPath: path.join(
-              config.output?.distPath?.root ?? 'dist',
-              config.output?.distPath?.html ?? '',
-              entryName,
-            ),
-            // Configure the intermediate path
-            intermediatePath: path.join(
-              config.output?.distPath?.root ?? 'dist',
-              DEFAULT_DIST_PATH_INTERMEDIATE,
-              entryName,
-            ),
-            // Configure the public path
-            publicPath: config.output?.publicPath ?? '/',
-          }])
+        // Apply encoding based on environment
+        if (isLynx) {
+          const inlineScripts =
+            typeof environment.config.output?.inlineScripts === 'boolean'
+              ? environment.config.output.inlineScripts
+              : true
+
+          chain
+            .plugin(`${LynxEncodePlugin.name}`)
+            .use(LynxEncodePlugin, [{ inlineScripts }])
+        }
+
+        if (isWeb) {
+          chain
+            .plugin(PLUGIN_NAME_WEB)
+            .use(WebEncodePlugin, [])
+        }
 
         return chain
       })
