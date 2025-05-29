@@ -1,4 +1,4 @@
-// Copyright 2024 The Lynx Authors. All rights reserved.
+// Copyright 2025 The Lynx Authors. All rights reserved.
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 import type { RsbuildPlugin } from '@rsbuild/core'
@@ -295,9 +295,9 @@ export function pluginVueLynx(
     pipelineSchedulerConfig: userOptions?.pipelineSchedulerConfig ?? 0x00010000,
     removeDescendantSelectorScope: userOptions?.removeDescendantSelectorScope
       ?? false,
-    engineVersion: userOptions?.engineVersion ?? '',
+    engineVersion: userOptions?.engineVersion ?? '3.2',
     targetSdkVersion: userOptions?.targetSdkVersion
-      ?? userOptions?.engineVersion ?? '',
+      ?? userOptions?.engineVersion ?? '3.2',
     experimental_isLazyBundle: userOptions?.experimental_isLazyBundle ?? false,
   }
 
